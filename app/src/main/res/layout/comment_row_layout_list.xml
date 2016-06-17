@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_title"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:descendantFocusability="blocksDescendants">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@+id/iv_options"
+        android:textSize="15sp"
+        android:textColor="@color/colorPrimaryText"
+        fontPath="fonts/OpenSans-Semibold.ttf" />
+
+    <ImageView
+        android:id="@+id/iv_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/ic_more_vert_grey600_24dp"/>
+
+    <TextView
+        android:id="@+id/tv_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_title"
+        android:layout_alignLeft="@+id/tv_title"
+        android:layout_marginBottom="16dp"
+        android:textSize="14sp"
+        android:textColor="@color/colorSecondaryText"/>
+
+    <TextView
+        android:id="@+id/tv_subreddit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tv_author"
+        android:layout_toRightOf="@id/tv_author"
+        android:textSize="14sp"
+        android:textColor="@color/colorSecondaryText"/>
+
+    <TextView
+        android:id="@+id/text_comment_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_author"
+        android:layout_alignLeft="@id/tv_author"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textSize="15sp"
+        android:textColor="@color/colorSecondaryText"/>
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/text_comment_author"
+        android:layout_alignBottom="@+id/text_comment_author"
+        android:layout_marginLeft="3dp"
+        android:textSize="13sp"
+        android:textColor="@color/colorSecondaryText"/>
+
+    <TextView
+        android:id="@+id/text_comment_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_comment_author"
+        android:layout_alignLeft="@id/text_comment_author"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimaryText"/>
+
+</RelativeLayout>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/drawer_group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/log"
+            android:icon="@drawable/ic_vpn_key_grey600_24dp"
+            android:title="Log In"/>
+        <item
+            android:id="@+id/home"
+            android:checked="true"
+            android:icon="@drawable/ic_home_grey600_24dp"
+            android:title="Home"/>
+        <item
+            android:id="@+id/subreeddits"
+            android:icon="@drawable/sr"
+            android:title="Subreddits"/>
+        <item
+            android:id="@+id/inbox"
+            android:icon="@drawable/ic_message_grey600_24dp"
+            android:title="Inbox"/>
+        <item
+            android:id="@+id/hidden"
+            android:icon="@drawable/ic_highlight_remove_grey600_24dp"
+            android:title="Hidden"/>
+        <item
+            android:id="@+id/saved"
+            android:icon="@drawable/ic_save_grey600_24dp"
+            android:title="Saved"/>
+        <item
+            android:id="@+id/user"
+            android:icon="@drawable/ic_person_grey600_24dp"
+            android:title="User"/>
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_settings_grey600_24dp"
+            android:title="Settings"/>
+    </group>
+</menu>

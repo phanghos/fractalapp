@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="pref_displayStyle"
+        android:title="Display style"
+        android:entries="@array/pref_displayStyle_entries"
+        android:entryValues="@array/pref_displayStyle_values"
+        android:defaultValue="1"/>
+</PreferenceScreen>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="front_page">
+        <item>HOT</item>
+        <item>CONTROVERSIAL</item>
+        <item>NEW</item>
+        <item>TOP</item>
+    </string-array>
+
+    <string-array name="subreddits_userless">
+        <item>POPULAR</item>
+        <item>NEW</item>
+        <item>EMPLOYEE</item>
+        <item>GOLD</item>
+        <!-- <item>DEFAULT</item> -->
+    </string-array>
+
+    <string-array name="subreddits_oauth">
+        <item>SUBSCRIBER</item>
+        <item>CONTRIBUTOR</item>
+        <item>MODERATOR</item>
+    </string-array>
+
+    <string-array name="inbox">
+        <item>INBOX</item>
+        <item>UNREAD</item>
+        <item>MESSAGES</item>
+        <item>SENT</item>
+        <item>MODERATOR</item>
+        <item>MODERATOR/UNREAD</item>
+        <item>MENTIONS</item>
+    </string-array>
+
+    <string-array name="pref_displayStyle_entries">
+        <item>Card</item>
+        <item>List</item>
+    </string-array>
+
+    <string-array name="pref_displayStyle_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,58 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
+        <item name="preferenceTheme">@style/PreferenceTheme</item>
+        <item name="android:spinnerStyle">@style/SpinnerStyle</item>
+        <!--<item name="android:actionBarStyle">@style/ActionBarStyle</item>-->
+        <item name="android:textAppearance">@style/TextViewStyle</item>
+        <item name="android:actionModeBackground">@android:color/darker_gray</item>
+        <item name="android:editTextBackground">@drawable/apptheme_edit_text_holo_light</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <!--<item name="android:popupMenuStyle">@style/PopupMenuStyle</item>-->
+
+        <!-- Support -->
+        <!--<item name="actionBarStyle">@style/ActionBarStyle</item>-->
+        <item name="spinnerStyle">@style/SpinnerStyle</item>
+        <item name="actionModeBackground">@color/action_mode</item>
+        <item name="editTextBackground">@drawable/apptheme_edit_text_holo_light</item>
+        <item name="windowActionModeOverlay">true</item>
+        <!--<item name="popupMenuStyle">@style/PopupMenuStyle</item>-->
+    </style>
+
+    <style name="TextViewStyle" parent="@android:style/TextAppearance">
+        <item name="fontPath">fonts/OpenSans-Regular.ttf</item>
+    </style>
+
+    <style name="ActionBarStyle" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/colorPrimaryDark</item>
+
+        <!-- Support -->
+        <item name="background">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="ActionBarOverlayTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowActionBarOverlay">true</item>
+
+        <!-- Support -->
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
+    <style name="PopupMenuStyle" parent="android:Widget.Holo.Light.ListPopupWindow">
+        <item name="android:popupBackground">@android:color/white</item>
+    </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@color/colorPrimary</item>
+        <item name="android:dropDownVerticalOffset">40dp</item>
+    </style>
+
+    <style name="PreferenceTheme" parent="Theme.AppCompat.Light">
+    </style>
+
+</resources>
