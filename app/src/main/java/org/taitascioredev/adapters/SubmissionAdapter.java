@@ -26,6 +26,9 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+
 import net.dean.jraw.ApiException;
 import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Listing;
@@ -530,7 +533,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         if (embed != null)
             url = embed.getThumbnail().getUrl().toExternalForm();
 
-        if (domain.contains("imgur") && !url.contains("gallery") && !url.contains(".gifv")) {
+        if (domain.contains("imgur") && !url.contains("gallery") && !url.contains(".gif")) {
             final String img = url;
             Log.d("IMAGE URL", submission.getTitle() + ":   " + url + " - " + Utils.getImageUrl(url, 'l'));
             uri = Uri.parse(Utils.getImageUrl(url, 'l'));
@@ -555,6 +558,33 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             vh.divider.setVisibility(View.GONE);
             vh.type.setText("GALLERY");
             vh.type.setVisibility(View.VISIBLE);
+        }
+        else if (url.contains(".gif") && !url.contains(".gifv")) {
+            final String img = url;
+            Log.d("IMAGE URL", url);
+            uri = Uri.parse(url);
+
+            DraweeController controller = Fresco.newDraweeControllerBuilder()
+                    .setUri(uri)
+                    .setAutoPlayAnimations(true)
+                    .build();
+
+            vh.thumbnail.setController(controller);
+            vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.lySmallThumb.setVisibility(View.GONE);
+            vh.divider.setVisibility(View.GONE);
+            /*
+            vh.thumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("IMG", img);
+                    Log.d("getImageUrl", Utils.getImageUrl(img, 'l'));
+                    Intent i = new Intent(context, PostImageActivity.class);
+                    i.putExtra("url", Utils.getImageUrl(img, 'l'));
+                    context.startActivity(i);
+                }
+            });
+            */
         }
         else if (url.contains(".gifv")) {
             vh.thumbnail.setVisibility(View.GONE);
