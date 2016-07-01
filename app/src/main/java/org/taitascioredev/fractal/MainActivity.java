@@ -57,15 +57,18 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         MenuItem hidden = navView.getMenu().findItem(R.id.hidden);
         MenuItem saved = navView.getMenu().findItem(R.id.saved);
 
+        hidden.setVisible(false);
+        saved.setVisible(false);
+
         if (app.getClient().getAuthenticationMethod().isUserless()) {
             inbox.setVisible(false);
-            hidden.setVisible(false);
-            saved.setVisible(false);
+            //hidden.setVisible(false);
+            //saved.setVisible(false);
         }
         else {
             inbox.setVisible(true);
-            hidden.setVisible(true);
-            saved.setVisible(true);
+            //hidden.setVisible(true);
+            //saved.setVisible(true);
         }
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -106,12 +109,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                         */
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new InboxFragment()).addToBackStack(null).commit();
                         return true;
+                    /*
                     case R.id.hidden:
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HiddenFragment()).addToBackStack(null).commit();
                         return true;
                     case R.id.saved:
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SavedFragment()).addToBackStack(null).commit();
                         return true;
+                        */
+                    /*
                     case R.id.user:
                         new MaterialDialog.Builder(MainActivity.this)
                                 .title("Search user")
@@ -128,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                                 })
                                 .show();
                         return true;
+                        */
                     case R.id.settings:
                         MainActivity.this.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PreferencesFragment()).addToBackStack(null).commit();
                         return true;

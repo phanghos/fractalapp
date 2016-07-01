@@ -18,7 +18,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,8 +79,11 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
     @Override
     public void onBindViewHolder(final SubmissionViewHolder vh, final int position) {
         final Submission submission = objects.get(position);
+        String pref = Utils.getDisplayPreference(context);
 
-        setMargins(position, vh);
+        //if (pref.equals("1"))
+            //setMargins(position, vh);
+
         setDate(submission, vh);
         setTitle(submission, vh);
         setAuthor(submission, vh);
@@ -129,7 +131,6 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             }
         };
 
-        String pref = Utils.getDisplayPreference(context);
         if (pref.equals("1"))
             vh.card.setOnClickListener(listener);
         else if (pref.equals("2"))
@@ -340,7 +341,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         vh.date.setText(dateStr);
     }
 
-    private void setTitle(final Submission submission, SubmissionViewHolder vh) {
+    private void setTitle(final Submission submission, final SubmissionViewHolder vh) {
         int start;
         int end;
         String str = submission.getTitle();
@@ -365,13 +366,17 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         for (final FormattedLink link : FormattedLink.extract(str)) {
             start = link.getStart();
             end = link.getEnd();
-            ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            MyClickableSpan span = new MyClickableSpan() {
+
+            MyClickableSpan span = new MyClickableSpan(context.getResources().getColor(R.color.colorPrimary)) {
                 @Override
                 public void onClick(View widget) {
                     Log.d("onClick", link.getText());
                     switch (link.getType()) {
                         case FormattedLink.TYPE_SUBREDDIT:
+                            MyApp app = (MyApp) context.getApplication();
+                            app.setSubredditPaginator(null);
+                            app.setSubmissionsSubreddit(null);
+
                             SubredditPageFragment fragment = new SubredditPageFragment();
                             Bundle bundle = new Bundle();
                             bundle.putString("subreddit_url", link.getText().substring(3));
@@ -380,16 +385,52 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                             context.getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.fragment_container, fragment)
                                     .addToBackStack(null).commit();
+
                             break;
                     }
                 }
             };
+
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(
+                    context.getResources().getColor(R.color.colorPrimary));
+
             ssb.setSpan(span, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            ssb.setSpan(colorSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
+
+        MyClickableSpan clickableSpan = new MyClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CommentsFragment fragment = new CommentsFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("id", submission.getId());
+                        fragment.setArguments(bundle);
+                    }
+                };
+
+                if (submission.isSelfPost())
+                    vh.title.setOnClickListener(listener);
+                else
+                    vh.title.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String url = submission.getUrl();
+                            Log.d("URL", url);
+                            context.startActivity(createIntent(submission.getDomain(), url));
+                        }
+                    });
+            }
+        };
+        ssb.setSpan(clickableSpan, 0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
         vh.title.setText(ssb, TextView.BufferType.SPANNABLE);
         vh.title.setMovementMethod(LinkMovementMethod.getInstance());
 
+        /*
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -411,6 +452,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                     context.startActivity(createIntent(submission.getDomain(), url));
                 }
             });
+            */
     }
 
     private void setAuthor(Submission submission, SubmissionViewHolder vh) {
@@ -434,6 +476,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         SpannableStringBuilder ssb = new SpannableStringBuilder(text);
         CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
                 TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
+
         MyClickableSpan clickSpan = new MyClickableSpan(context.getResources().getColor(R.color.colorDomain)) {
             @Override
             public void onClick(View widget) {
@@ -472,7 +515,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         }
     }
 
-    private void setThumbnail(Submission submission, SubmissionViewHolder vh) {
+    private void setThumbnail(final Submission submission, final SubmissionViewHolder vh) {
         String url = submission.getUrl();
         OEmbed embed = submission.getOEmbedMedia();
         String domain = submission.getDomain();
@@ -486,7 +529,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             uri = Uri.parse(Utils.getImageUrl(url, 'l'));
             vh.thumbnail.setImageURI(uri);
             vh.thumbnail.setVisibility(View.VISIBLE);
-            vh.layoutSmallThumb.setVisibility(View.GONE);
+            vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
             vh.thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -503,14 +546,41 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             Log.d("URL", url);
             vh.thumbnail.setVisibility(View.GONE);
             vh.divider.setVisibility(View.VISIBLE);
-            vh.layoutSmallThumb.setVisibility(View.VISIBLE);
+            vh.lySmallThumb.setVisibility(View.VISIBLE);
             uri = Uri.parse(url);
             vh.thumbnailSmall.setImageURI(uri);
             vh.url.setText(submission.getUrl());
+
+            vh.lySmallThumb.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    View.OnClickListener listener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CommentsFragment fragment = new CommentsFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("id", submission.getId());
+                            fragment.setArguments(bundle);
+                        }
+                    };
+
+                    if (submission.isSelfPost())
+                        vh.lySmallThumb.setOnClickListener(listener);
+                    else
+                        vh.lySmallThumb.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String url = submission.getUrl();
+                                Log.d("URL", url);
+                                context.startActivity(createIntent(submission.getDomain(), url));
+                            }
+                        });
+                }
+            });
         }
         else {
             vh.thumbnail.setVisibility(View.GONE);
-            vh.layoutSmallThumb.setVisibility(View.GONE);
+            vh.lySmallThumb.setVisibility(View.GONE);
             if (!submission.isSelfPost())
                 vh.divider.setVisibility(View.GONE);
         }

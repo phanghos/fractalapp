@@ -20,9 +20,13 @@ public class MyClickableSpan extends ClickableSpan {
 
     @Override
     public void updateDrawState(TextPaint ds) {
+        /*
         if (color == -1)
             ds.setColor(ds.linkColor);
         else
+            ds.setColor(color);
+            */
+        if (color != -1)
             ds.setColor(color);
         ds.setUnderlineText(false);
     }

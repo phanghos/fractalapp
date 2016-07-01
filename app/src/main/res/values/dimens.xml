@@ -6,6 +6,6 @@
     <dimen name="bottom_images_dimension_big">60dp</dimen>
     <dimen name="bottom_images_dimension_small">50dp</dimen>
     <dimen name="bottom_images_margin">10dp</dimen>
-    <dimen name="icon_size">38px</dimen>
-    <dimen name="icon_size_small">32px</dimen>
+    <dimen name="icon_size">32px</dimen>
+    <dimen name="thumbail_height">250dp</dimen>
 </resources>

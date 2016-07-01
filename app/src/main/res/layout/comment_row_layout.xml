@@ -58,56 +58,40 @@
 
                 <ImageView
                     android:id="@+id/iv_down"
-                    android:layout_width="@dimen/icon_size_small"
-                    android:layout_height="@dimen/icon_size_small"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
                     android:layout_weight="1"
                     android:src="@drawable/ic_down_grey"/>
 
                 <ImageView
                     android:id="@+id/iv_up"
-                    android:layout_width="@dimen/icon_size_small"
-                    android:layout_height="@dimen/icon_size_small"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
                     android:layout_weight="1"
                     android:src="@drawable/ic_up_grey"/>
 
                 <ImageView
                     android:id="@+id/iv_comment"
-                    android:layout_width="@dimen/icon_size_small"
-                    android:layout_height="@dimen/icon_size_small"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
                     android:layout_weight="1"
                     android:src="@drawable/ic_comment_grey"/>
 
                 <ImageView
                     android:id="@+id/iv_share"
-                    android:layout_width="@dimen/icon_size_small"
-                    android:layout_height="@dimen/icon_size_small"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
                     android:layout_weight="1"
                     android:src="@drawable/ic_share_grey"/>
 
                 <ImageView
                     android:id="@+id/iv_save"
-                    android:layout_width="@dimen/icon_size_small"
-                    android:layout_height="@dimen/icon_size_small"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
                     android:layout_weight="1"
                     android:src="@drawable/ic_like_grey"/>
 
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/text_number_replies"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignBottom="@+id/text_comment_author"
-                android:layout_marginRight="10dp"
-                android:textStyle="bold|italic"
-                android:visibility="gone"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorDivider"
-                android:visibility="gone"/>
 
         </RelativeLayout>
 

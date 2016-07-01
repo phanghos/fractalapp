@@ -53,7 +53,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         LinearLayout layout;
         TextView author;
         TextView body;
-        TextView replies;
         LinearLayout lyActions;
 
         public ViewHolder(View v) {
@@ -64,7 +63,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             layout = (LinearLayout) v.findViewById(R.id.linear_layout);
             author = (TextView) v.findViewById(R.id.text_comment_author);
             body = (TextView) v.findViewById(R.id.text_comment_body);
-            replies = (TextView) v.findViewById(R.id.text_number_replies);
             lyActions = (LinearLayout) v.findViewById(R.id.layout_actions);
         }
     }
@@ -84,7 +82,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         CommentNode node = objects.get(position);
-        Comment comment = node.getComment();
+        final Comment comment = node.getComment();
 
         /*
         holder.layout.setOnClickListener(new View.OnClickListener() {
@@ -112,14 +110,18 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
                 holder.body.setText(Utils.setUrlSpans(context, spanned, false));
             }
         });
-        holder.body.setMovementMethod(LinkMovementMethod.getInstance());
+        holder.body.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData data = ClipData.newPlainText("comment", comment.getBody());
+                clipboard.setPrimaryClip(data);
+                Toast.makeText(context, "Comment copied to the clipboard", Toast.LENGTH_SHORT).show();
 
-        if (node.getChildren().size() == 0)
-            holder.replies.setVisibility(View.GONE);
-        else {
-            holder.replies.setText(node.getTotalSize() + "");
-            holder.replies.setVisibility(View.VISIBLE);
-        }
+                return true;
+            }
+        });
+        holder.body.setMovementMethod(LinkMovementMethod.getInstance());
 
         int indentation = getIndentation(comment.getId());
         //holder.view.setPadding(10 + indentation, 10, 10, 10);

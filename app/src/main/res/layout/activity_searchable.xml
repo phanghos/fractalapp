@@ -39,7 +39,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="gone"
-        wheel:matProg_barColor="#5588FF"
+        wheel:matProg_barColor="@color/colorAccent"
         wheel:matProg_progressIndeterminate="true" />
 
 </RelativeLayout>

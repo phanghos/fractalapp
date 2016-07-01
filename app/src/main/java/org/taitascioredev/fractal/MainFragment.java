@@ -125,12 +125,13 @@ public class MainFragment extends Fragment {
         });
 
         mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
-        Drawable divider = getResources().getDrawable(R.drawable.divider_card);
         String displayStyle = Utils.getDisplayPreference(context);
-        if (displayStyle.equals("2"))
-            divider = getResources().getDrawable(R.drawable.divider_list);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
+        if (displayStyle.equals("2")) {
+            Drawable divider = getResources().getDrawable(R.drawable.divider_list);
+            mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
+        }
 
+        /*
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -146,6 +147,7 @@ public class MainFragment extends Fragment {
         };
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(mRecyclerView);
+        */
 
         refreshWidget = (SwipyRefreshLayout) getView().findViewById(R.id.swipyrefreshlayout);
         refreshWidget.setDirection(SwipyRefreshLayoutDirection.BOTH);

@@ -28,10 +28,12 @@
             android:id="@+id/saved"
             android:icon="@drawable/ic_save_grey600_24dp"
             android:title="Saved"/>
+        <!--
         <item
             android:id="@+id/user"
             android:icon="@drawable/ic_person_grey600_24dp"
             android:title="User"/>
+            -->
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_settings_grey600_24dp"

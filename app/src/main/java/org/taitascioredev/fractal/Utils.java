@@ -26,6 +26,9 @@ import java.util.Calendar;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyTypefaceSpan;
+import uk.co.chrisjenx.calligraphy.TypefaceUtils;
+
 /**
  * Created by roberto on 21/03/15.
  */
@@ -101,10 +104,48 @@ public class Utils {
         str = builder.toString();
         SpannableStringBuilder ssb = new SpannableStringBuilder(Html.fromHtml(str));
         URLSpan[] spans = ssb.getSpans(0, ssb.length(), URLSpan.class);
+
+        CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
+                TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
+
         for (int i = 0; i < spans.length; i++) {
+            Log.d("debug", spans[i].toString());
             int start = ssb.getSpanStart(spans[i]);
             int end = ssb.getSpanEnd(spans[i]);
             final String url = spans[i].getURL();
+
+            for (final FormattedLink link : FormattedLink.extract(url)) {
+                //start = link.getStart();
+                //end = link.getEnd();
+                ssb.removeSpan(spans[i]);
+
+                MyClickableSpan span = new MyClickableSpan(context.getResources().getColor(R.color.colorPrimary)) {
+                    @Override
+                    public void onClick(View widget) {
+                        Log.d("onClick", link.getText());
+                        switch (link.getType()) {
+                            case FormattedLink.TYPE_SUBREDDIT:
+                                MyApp app = (MyApp) context.getApplication();
+                                app.setSubredditPaginator(null);
+                                app.setSubmissionsSubreddit(null);
+
+                                SubredditPageFragment fragment = new SubredditPageFragment();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("subreddit_url", link.getText().substring(3));
+                                fragment.setArguments(bundle);
+
+                                context.getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_container, fragment)
+                                        .addToBackStack(null).commit();
+                                break;
+                        }
+                    }
+                };
+                ssb.setSpan(span, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            }
+
+            /*
             //String regexp = "/[rum]/\\S{3,20}";
             String regexp = "/[rum]/[\\w[-]]{3,20}";
             boolean b = Pattern.matches(regexp, url);
@@ -115,20 +156,25 @@ public class Utils {
                     public void onClick(View widget) {
                         Log.d("debug", "CLICKED ON SUBREDDIT/USER/MULTIREDDIT");
                         String name = url.substring(3);
-                        if (url.contains("/r/")) {
+                        if (url.startsWith("/r/")) {
                             MyApp app = (MyApp) context.getApplication();
                             app.setSubredditPaginator(null);
                             app.setSubmissionsSubreddit(null);
+
                             SubredditPageFragment fragment = new SubredditPageFragment();
                             Bundle bundle = new Bundle();
                             bundle.putString("subreddit_url", name);
                             fragment.setArguments(bundle);
-                            //context.setFragmentChild(fragment, name);
+
+                            context.getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container, fragment)
+                                    .addToBackStack(null).commit();
                         }
                     }
                 };
                 ssb.setSpan(span, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             }
+            */
         }
         if (cutContent) {
             int limit = 200;

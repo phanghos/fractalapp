@@ -35,7 +35,7 @@
         </activity>
         <activity android:name=".PostLinkActivity" />
         <activity android:name=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|screenSize"
             android:windowSoftInputMode="stateHidden">
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable" />

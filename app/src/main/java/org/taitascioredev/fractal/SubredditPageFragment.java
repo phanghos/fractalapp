@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,14 +35,16 @@ import org.lucasr.twowayview.widget.TwoWayView;
 import org.taitascioredev.adapters.CustomSpinnerAdapter;
 import org.taitascioredev.adapters.SubmissionAdapter;
 
+import java.util.List;
+
 /**
  * Created by roberto on 25/04/15.
  */
 public class SubredditPageFragment extends Fragment {
 
     private int sorting;
-
     private String url;
+    private Listing<Submission> list;
     private SubmissionAdapter adapter;
     private MyApp app;
 
@@ -139,6 +142,7 @@ public class SubredditPageFragment extends Fragment {
         wheel = (ProgressWheel) getView().findViewById(R.id.progress_wheel);
         empty = (TextView) getView().findViewById(R.id.tv_empty);
 
+        /*
         paginator = app.getSubredditPaginator();
         if (savedInstanceState == null && app.getSubmissionsSubreddit() == null)
             new GetSubmissionsTask().execute(url);
@@ -149,7 +153,27 @@ public class SubredditPageFragment extends Fragment {
             //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
             mRecyclerView.setAdapter(adapter);
         }
+        */
+
+        if (list == null)
+            new GetSubmissionsTask().execute(url);
+        else {
+            spinner.setTag(sorting);
+            spinner.setSelection(sorting, false);
+            adapter = new SubmissionAdapter(context, list);
+            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+            mRecyclerView.setAdapter(adapter);
+        }
     }
+
+    /*
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        app.setSubredditPaginator(null);
+        app.setSubmissionsSubreddit(null);
+    }
+    */
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
@@ -209,19 +233,23 @@ public class SubredditPageFragment extends Fragment {
 
             if (submissions != null) {
                 if (adapter == null) {
+                    list = submissions;
                     adapter = new SubmissionAdapter(context, submissions);
                     //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
                     mRecyclerView.setAdapter(adapter);
                 }
                 else {
                     for (Submission s : submissions) {
+                        list.add(s);
                         adapter.add(s);
                         adapter.notifyItemInserted(adapter.getItemCount() - 1);
                     }
                 }
-                app.setSubredditPaginator(paginator);
-                app.setSubmissionsSubreddit(adapter.getList());
-                app.setSubredditPageSorting(sorting);
+
+
+                //app.setSubredditPaginator(paginator);
+                //app.setSubmissionsSubreddit(adapter.getList());
+                //app.setSubredditPageSorting(sorting);
 
                 if (submissions.size() == 0)
                     empty.setVisibility(View.VISIBLE);
@@ -254,13 +282,14 @@ public class SubredditPageFragment extends Fragment {
             wheel.setVisibility(View.GONE);
 
             if (submissions != null) {
+                list = submissions;
                 adapter = new SubmissionAdapter(context, submissions);
                 //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
                 mRecyclerView.setAdapter(adapter);
 
-                app.setSubredditPaginator(paginator);
-                app.setSubmissionsSubreddit(adapter.getList());
-                app.setSubredditPageSorting(sorting);
+                //app.setSubredditPaginator(paginator);
+                //app.setSubmissionsSubreddit(adapter.getList());
+                //app.setSubredditPageSorting(sorting);
 
                 if (submissions.size() == 0)
                     empty.setVisibility(View.VISIBLE);

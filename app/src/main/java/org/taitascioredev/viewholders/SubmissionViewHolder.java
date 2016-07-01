@@ -20,7 +20,7 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
     public CardView card;
     public LinearLayout layout;
     public LinearLayout layoutActions;
-    public RelativeLayout layoutSmallThumb;
+    public RelativeLayout lySmallThumb;
     public TextView title;
     public TextView gif;
     public TextView votes;
@@ -48,7 +48,7 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
         card = (CardView) v.findViewById(R.id.card_view);
         layout = (LinearLayout) v.findViewById(R.id.layout_title);
         layoutActions = (LinearLayout) v.findViewById(R.id.layout_actions);
-        layoutSmallThumb = (RelativeLayout) v.findViewById(R.id.layout_small_thumbnail);
+        lySmallThumb = (RelativeLayout) v.findViewById(R.id.layout_small_thumbnail);
         title = (TextView) v.findViewById(R.id.tv_title);
         gif = (TextView) v.findViewById(R.id.tv_gif);
         votes = (TextView) v.findViewById(R.id.text_votes);
