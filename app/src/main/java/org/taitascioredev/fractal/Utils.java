@@ -74,7 +74,6 @@ public class Utils {
     }
 
     public static String getImageUrl(String url, char ch) {
-        //Log.d("debug", "IMG URL: " + url);
         char lastChar = url.charAt(url.length() - 1);
 
         if (!url.endsWith(".jpg")) {
@@ -82,6 +81,7 @@ public class Utils {
                 return url + ch + ".jpg";
             return url + ".jpg";
         }
+
         int index = url.indexOf(".jpg");
         String sub = url.substring(0, index);
         lastChar = sub.charAt(sub.length() - 1);

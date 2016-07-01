@@ -177,7 +177,7 @@ public class SubredditPageFragment extends Fragment {
 
         @Override
         protected Listing<Submission> doInBackground(String... params) {
-            paginator = app.getSubredditPaginator();
+            //paginator = app.getSubredditPaginator();
 
             if (paginator == null)
                 paginator = new SubredditPaginator(app.getClient(), params[0]);
@@ -198,10 +198,9 @@ public class SubredditPageFragment extends Fragment {
                     mRecyclerView.setAdapter(adapter);
                 }
                 else {
-                    for (Submission s : submissions) {
-                        list.add(s);
+                    for (Submission s : submissions)
                         adapter.add(s);
-                    }
+                    list = adapter.getList();
                 }
 
                 //app.setSubredditPaginator(paginator);

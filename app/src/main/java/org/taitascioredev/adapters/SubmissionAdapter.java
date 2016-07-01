@@ -529,7 +529,8 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
 
         if (embed != null)
             url = embed.getThumbnail().getUrl().toExternalForm();
-        if (domain.contains("imgur")) {
+
+        if (domain.contains("imgur") && !url.contains("gallery") && !url.contains(".gifv")) {
             final String img = url;
             Log.d("IMAGE URL", submission.getTitle() + ":   " + url + " - " + Utils.getImageUrl(url, 'l'));
             uri = Uri.parse(Utils.getImageUrl(url, 'l'));
@@ -547,6 +548,20 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                     context.startActivity(i);
                 }
             });
+        }
+        else if (url.contains("gallery")) {
+            vh.thumbnail.setVisibility(View.GONE);
+            vh.lySmallThumb.setVisibility(View.GONE);
+            vh.divider.setVisibility(View.GONE);
+            vh.type.setText("GALLERY");
+            vh.type.setVisibility(View.VISIBLE);
+        }
+        else if (url.contains(".gifv")) {
+            vh.thumbnail.setVisibility(View.GONE);
+            vh.lySmallThumb.setVisibility(View.GONE);
+            vh.divider.setVisibility(View.GONE);
+            vh.type.setText("GIF");
+            vh.type.setVisibility(View.VISIBLE);
         }
         else if (embed != null) {
             Log.d("URL", url);
@@ -593,10 +608,12 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
     }
 
     private void setGif(String url, SubmissionViewHolder vh) {
-        if (url.contains(".gif") || url.contains(".gifv"))
-            vh.gif.setVisibility(View.VISIBLE);
+        if (url.contains(".gif") || url.contains(".gifv")) {
+            vh.type.setText("GIF");
+            vh.type.setVisibility(View.VISIBLE);
+        }
         else
-            vh.gif.setVisibility(View.GONE);
+            vh.type.setVisibility(View.GONE);
     }
 
     private String getImageUrl(String domain, String url) {

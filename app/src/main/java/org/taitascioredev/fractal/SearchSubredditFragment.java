@@ -67,9 +67,10 @@ public class SearchSubredditFragment extends Fragment {
         mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
         //mLayoutManager = new LinearLayoutManager(context);
         //mRecyclerView.setLayoutManager(mLayoutManager);
-        final Drawable divider = getResources().getDrawable(R.drawable.divider_card);
+        final Drawable divider = getResources().getDrawable(R.drawable.divider_list);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
         ItemClickSupport clickSupport = ItemClickSupport.addTo(mRecyclerView);
+
         clickSupport.setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerView recyclerView, View view, int position, long l) {

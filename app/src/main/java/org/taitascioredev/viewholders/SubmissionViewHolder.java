@@ -22,7 +22,7 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
     public LinearLayout layoutActions;
     public RelativeLayout lySmallThumb;
     public TextView title;
-    public TextView gif;
+    public TextView type;
     public TextView votes;
     public ImageView up;
     public ImageView down;
@@ -45,29 +45,29 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
     public SubmissionViewHolder(View v) {
         super(v);
 
-        card = (CardView) v.findViewById(R.id.card_view);
-        layout = (LinearLayout) v.findViewById(R.id.layout_title);
-        layoutActions = (LinearLayout) v.findViewById(R.id.layout_actions);
-        lySmallThumb = (RelativeLayout) v.findViewById(R.id.layout_small_thumbnail);
-        title = (TextView) v.findViewById(R.id.tv_title);
-        gif = (TextView) v.findViewById(R.id.tv_gif);
-        votes = (TextView) v.findViewById(R.id.text_votes);
-        up = (ImageView) v.findViewById(R.id.image_up);
-        down = (ImageView) v.findViewById(R.id.image_down);
-        author = (TextView) v.findViewById(R.id.tv_author);
-        subreddit = (TextView) v.findViewById(R.id.tv_subreddit);
-        date = (TextView) v.findViewById(R.id.tv_date);
-        divider = v.findViewById(R.id.divider);
-        thumbnailSmall = (SimpleDraweeView) v.findViewById(R.id.thumbnail);
-        url = (TextView) v.findViewById(R.id.text_url);
-        body = (TextView) v.findViewById(R.id.text_body);
+        card            = (CardView) v.findViewById(R.id.card_view);
+        layout          = (LinearLayout) v.findViewById(R.id.layout_title);
+        layoutActions   = (LinearLayout) v.findViewById(R.id.layout_actions);
+        lySmallThumb    = (RelativeLayout) v.findViewById(R.id.layout_small_thumbnail);
+        title           = (TextView) v.findViewById(R.id.tv_title);
+        type            = (TextView) v.findViewById(R.id.tv_type);
+        votes           = (TextView) v.findViewById(R.id.text_votes);
+        up              = (ImageView) v.findViewById(R.id.image_up);
+        down            = (ImageView) v.findViewById(R.id.image_down);
+        author          = (TextView) v.findViewById(R.id.tv_author);
+        subreddit       = (TextView) v.findViewById(R.id.tv_subreddit);
+        date            = (TextView) v.findViewById(R.id.tv_date);
+        divider         = v.findViewById(R.id.divider);
+        thumbnailSmall  = (SimpleDraweeView) v.findViewById(R.id.thumbnail);
+        url             = (TextView) v.findViewById(R.id.text_url);
+        body            = (TextView) v.findViewById(R.id.text_body);
         //thumbnail = (ImageView) v.findViewById(R.id.image_thumbnail);
-        thumbnail = (SimpleDraweeView) v.findViewById(R.id.image_thumbnail);
-        score = (TextView) v.findViewById(R.id.tv_score);
-        comments = (TextView) v.findViewById(R.id.tv_comments);
+        thumbnail       = (SimpleDraweeView) v.findViewById(R.id.image_thumbnail);
+        score           = (TextView) v.findViewById(R.id.tv_score);
+        comments        = (TextView) v.findViewById(R.id.tv_comments);
 
-        share = (ImageView) v.findViewById(R.id.iv_share);
-        save = (ImageView) v.findViewById(R.id.image_save);
-        hide = (ImageView) v.findViewById(R.id.image_hide);
+        share           = (ImageView) v.findViewById(R.id.iv_share);
+        save            = (ImageView) v.findViewById(R.id.image_save);
+        hide            = (ImageView) v.findViewById(R.id.image_hide);
     }
 }
