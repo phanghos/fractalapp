@@ -201,10 +201,8 @@ public class SubredditPageFragment extends Fragment {
                     for (Submission s : submissions) {
                         list.add(s);
                         adapter.add(s);
-                        adapter.notifyItemInserted(adapter.getItemCount() - 1);
                     }
                 }
-
 
                 //app.setSubredditPaginator(paginator);
                 //app.setSubmissionsSubreddit(adapter.getList());

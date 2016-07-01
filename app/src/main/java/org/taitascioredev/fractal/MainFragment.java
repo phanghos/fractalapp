@@ -409,16 +409,13 @@ public class MainFragment extends Fragment {
                     if (direction == SwipyRefreshLayoutDirection.TOP) {
                         int count = 0;
                         for (Submission s : submissions)
-                            if (!adapter.contains(s)) {
-                                adapter.add(count++, s);
-                                adapter.notifyItemInserted(0);
-                            }
+                            if (!adapter.contains(s))
+                                adapter.add(0, s);
+                                //adapter.add(count++, s);
                     }
                     else {
-                        for (Submission s : submissions) {
+                        for (Submission s : submissions)
                             adapter.add(s);
-                            adapter.notifyItemInserted(adapter.getItemCount() - 1);
-                        }
                     }
                 }
                 app.setPaginator(paginator);

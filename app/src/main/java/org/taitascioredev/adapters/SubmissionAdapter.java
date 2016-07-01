@@ -282,9 +282,15 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
     @Override
     public long getItemId(int position) { return Long.parseLong(getItem(position).getId()); }
 
-    public void add(int index, Submission submission) { objects.add(index, submission); }
+    public void add(int index, Submission submission) {
+        objects.add(index, submission);
+        notifyItemInserted(index);
+    }
 
-    public void add(Submission submission) { objects.add(submission); }
+    public void add(Submission submission) {
+        objects.add(submission);
+        notifyItemInserted(getItemCount() - 1);
+    }
 
     public boolean contains(Object object) { return objects.contains(object); }
 
