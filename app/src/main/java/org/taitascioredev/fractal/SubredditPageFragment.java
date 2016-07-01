@@ -69,7 +69,6 @@ public class SubredditPageFragment extends Fragment {
         url = bundle.getString("subreddit_url");
         context.getSupportActionBar().setTitle(url);
         context.getSupportActionBar().setDisplayShowTitleEnabled(true);
-        setHasOptionsMenu(true);
 
         Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
         toolbar.setOnClickListener(new View.OnClickListener() {
@@ -165,46 +164,6 @@ public class SubredditPageFragment extends Fragment {
             mRecyclerView.setAdapter(adapter);
         }
     }
-
-    /*
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        app.setSubredditPaginator(null);
-        app.setSubmissionsSubreddit(null);
-    }
-    */
-
-    @Override
-    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-        final SearchManager searchManager = (SearchManager) context.getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(context.getComponentName()));
-        searchView.setQueryHint("Subreddit name");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                if (s.length() == 0 || s.equals("")) {
-                    Toast.makeText(context, "Field cannot be blank", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                SearchSubredditFragment fragment = new SearchSubredditFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("query", s);
-                fragment.setArguments(bundle);
-                menu.findItem(R.id.search).collapseActionView();
-                context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
-            }
-        });
-    }
-
     private String getSorting() { return paginator.getSorting().name(); }
 
     private class GetSubmissionsTask extends AsyncTask<String, Void, Listing<Submission>> {
