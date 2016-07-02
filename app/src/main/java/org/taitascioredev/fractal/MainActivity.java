@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -49,6 +50,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                setNavigationIcon();
+            }
+        });
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navView = (NavigationView) findViewById(R.id.navigation_view);
@@ -223,6 +231,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
+    private void setNavigationIcon() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        drawerToggle.setDrawerIndicatorEnabled(backStackEntryCount == 0);
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -237,9 +250,16 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle.onOptionsItemSelected(item))
+        if (drawerToggle.isDrawerIndicatorEnabled() && drawerToggle.onOptionsItemSelected(item))
             return true;
-        return super.onOptionsItemSelected(item);
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

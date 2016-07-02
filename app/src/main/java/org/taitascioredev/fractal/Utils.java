@@ -115,6 +115,8 @@ public class Utils {
             final String url = spans[i].getURL();
 
             for (final FormattedLink link : FormattedLink.extract(url)) {
+                Log.d("URL", url);
+                Log.d("LINK", link.getText());
                 //start = link.getStart();
                 //end = link.getEnd();
                 ssb.removeSpan(spans[i]);

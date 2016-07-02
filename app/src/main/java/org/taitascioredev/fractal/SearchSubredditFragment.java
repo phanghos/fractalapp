@@ -96,6 +96,7 @@ public class SearchSubredditFragment extends Fragment {
         context.getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         refreshWidget = (SwipyRefreshLayout) context.findViewById(R.id.swipyrefreshlayout);
+        refreshWidget.setDirection(SwipyRefreshLayoutDirection.BOTTOM);
         refreshWidget.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
@@ -159,10 +160,8 @@ public class SearchSubredditFragment extends Fragment {
                     mRecyclerView.setAdapter(adapter);
                 }
                 else {
-                    for (Subreddit s : subreddits) {
+                    for (Subreddit s : subreddits)
                         adapter.add(s);
-                        adapter.notifyItemInserted(adapter.getItemCount() - 1);
-                    }
                 }
 
                 if (subreddits.size() == 0)

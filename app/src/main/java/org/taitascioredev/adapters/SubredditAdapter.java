@@ -59,9 +59,15 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.View
         return objects;
     }
 
-    public void add(Subreddit subreddit) { objects.add(subreddit); }
+    public void add(int index, Subreddit subreddit) {
+        objects.add(index, subreddit);
+        notifyItemInserted(index);
+    }
 
-    public void add(int index, Subreddit subreddit) { objects.add(index, subreddit); }
+    public void add(Subreddit subreddit) {
+        objects.add(subreddit);
+        notifyItemInserted(getItemCount() - 1);
+    }
 
     public boolean contains(Object object) { return objects.contains(object); }
 
