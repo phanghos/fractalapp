@@ -23,6 +23,7 @@ import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.oauth.OAuthHelper;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,7 +44,7 @@ public class EntryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login2);
-        //getSupportActionBar().hide();
+
         app = (MyApp) getApplication();
         agent = UserAgent.of(Constants.PLATFORM, Constants.PACKAGE, Constants.VERSION, Constants.USERNAME);
         client = new RedditClient(agent);
@@ -101,9 +102,28 @@ public class EntryActivity extends AppCompatActivity {
                 Log.d("debug", "ACCESS TOKEN: " + app.getClient().getOAuthData().getAccessToken());
                 Log.d("debug", "REFRESH TOKEN: " + app.getClient().getOAuthData().getRefreshToken());
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                //Intent i = new Intent(getApplicationContext(), MainActivity2.class);
                 if (uri != null)
                     i.putExtra("url", uri.toString());
+
+                Bundle b = new Bundle();
+                if (getIntent() != null) {
+                    Uri uri = getIntent().getData();
+                    if (uri != null) {
+                        String segment = uri.getPathSegments().get(0);
+
+                        switch (segment) {
+                            case "subreddits":
+                                b.putString("action", "subreddits");
+                                break;
+                            case "r":
+                                b.putString("action", "subreddit");
+                                b.putString("subreddit_url", uri.getPathSegments().get(1));
+                                break;
+                        }
+
+                        i.putExtras(b);
+                    }
+                }
                 startActivity(i);
                 finish();
             }
@@ -189,6 +209,26 @@ public class EntryActivity extends AppCompatActivity {
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
                 if (uri != null)
                     i.putExtra("url", uri.toString());
+
+                Bundle b = new Bundle();
+                if (getIntent() != null) {
+                    Uri uri = getIntent().getData();
+                    if (uri != null) {
+                        String segment = uri.getPathSegments().get(0);
+
+                        switch (segment) {
+                            case "subreddits":
+                                b.putString("action", "subreddits");
+                                break;
+                            case "r":
+                                b.putString("action", "subreddit");
+                                b.putString("subreddit_url", uri.getPathSegments().get(1));
+                                break;
+                        }
+
+                        i.putExtras(b);
+                    }
+                }
                 startActivity(i);
                 finish();
             }
@@ -228,9 +268,28 @@ public class EntryActivity extends AppCompatActivity {
                 editor.putLong(Constants.SHARED_PREF_TIME, Calendar.getInstance().getTimeInMillis());
                 editor.commit();
                 Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                //Intent i = new Intent(getApplicationContext(), MainActivity2.class);
                 if (uri != null)
                     i.putExtra("url", uri.toString());
+
+                Bundle b = new Bundle();
+                if (getIntent() != null) {
+                    Uri uri = getIntent().getData();
+                    if (uri != null) {
+                        String segment = uri.getPathSegments().get(0);
+
+                        switch (segment) {
+                            case "subreddits":
+                                b.putString("action", "subreddits");
+                                break;
+                            case "r":
+                                b.putString("action", "subreddit");
+                                b.putString("subreddit_url", uri.getPathSegments().get(1));
+                                break;
+                        }
+
+                        i.putExtras(b);
+                    }
+                }
                 startActivity(i);
                 finish();
             }

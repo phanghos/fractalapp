@@ -21,17 +21,32 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" android:host="www.reddit.com" android:path="/subreddits"/>
+
+                <!--
                 <data android:scheme="http" android:host="www.reddit.com" android:path="/subreddits" />
                 <data android:scheme="https" android:host="www.reddit.com" android:path="/subreddits"/>
                 <data android:scheme="http" android:host="www.reddit.com" android:pathPrefix="/r" />
                 <data android:scheme="https" android:host="www.reddit.com" android:pathPrefix="/r" />
                 <data android:scheme="http" android:host="www.reddit.com" android:pathPrefix="/comments" />
                 <data android:scheme="https" android:host="www.reddit.com" android:pathPrefix="/comments" />
+                -->
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" android:host="www.reddit.com" android:pathPrefix="/r"/>
+            </intent-filter>
+
         </activity>
         <activity android:name=".PostLinkActivity" />
         <activity android:name=".MainActivity"
@@ -43,6 +58,20 @@
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
+
+        <!--
+        <activity
+            android:name="com.airbnb.deeplinkdispatch.DeepLinkActivity"
+            android:theme="@android:style/Theme.NoDisplay">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" android:host="www.reddit.com" />
+        </intent-filter>
+        </activity>
+        -->
+
     </application>
 
 </manifest>

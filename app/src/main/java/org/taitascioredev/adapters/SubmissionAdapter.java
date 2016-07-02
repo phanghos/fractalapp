@@ -124,10 +124,12 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         final View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("SUBMISSION ID", submission.getId()+"");
                 CommentsFragment fragment = new CommentsFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("id", submission.getId());
                 fragment.setArguments(bundle);
+
                 context.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null).commit();
@@ -396,6 +398,8 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                                     .addToBackStack(null).commit();
 
                             break;
+                        default:
+                            Toast.makeText(context, "Link not yet supported", Toast.LENGTH_SHORT).show();
                     }
                 }
             };
@@ -418,6 +422,10 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                         Bundle bundle = new Bundle();
                         bundle.putString("id", submission.getId());
                         fragment.setArguments(bundle);
+
+                        context.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null).commit();
                     }
                 };
 

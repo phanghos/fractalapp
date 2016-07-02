@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -172,8 +173,31 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         getSupportActionBar().setHomeButtonEnabled(true);
         //drawerToggle.syncState();
 
-        MainFragment fragment = new MainFragment();
+        Fragment fragment = null;
 
+        Bundle b = getIntent().getExtras();
+        if (b != null) {
+            String action = b.getString("action");
+
+            switch (action) {
+                case "subreddits":
+                    if (app.getClient().getAuthenticationMethod().isUserless())
+                        fragment = new SubredditsFragmentUserless();
+                    else
+                        fragment = new SubredditsFragmentOAuth();
+                    break;
+                case "subreddit":
+                    fragment = new SubredditPageFragment();
+                    fragment.setArguments(b);
+                    break;
+            }
+
+
+        }
+        else
+            fragment = new MainFragment();
+
+        /*
         String url = getIntent().getStringExtra("url");
         Bundle b = new Bundle();
         if (url != null) {
@@ -181,9 +205,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             Log.d("debug", url);
         }
         fragment.setArguments(b);
+        */
 
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_container, fragment).commit();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, fragment).commit();
     }
 
     //@Override
