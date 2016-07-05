@@ -192,10 +192,16 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     break;
             }
 
-
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, fragment).commit();
         }
-        else
+        else {
             fragment = new MainFragment();
+
+            if (getSupportFragmentManager().findFragmentByTag("MainFragment") == null)
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, fragment, "MainFragment").commit();
+        }
 
         /*
         String url = getIntent().getStringExtra("url");
@@ -206,9 +212,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
         fragment.setArguments(b);
         */
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, fragment).commit();
     }
 
     //@Override
@@ -321,10 +324,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("pref_displayStyle")) {
             String displayPref = Utils.getDisplayPreference(this);
-            if (displayPref.equals("1"))
-                ;
-            else
-                ;
         }
     }
 

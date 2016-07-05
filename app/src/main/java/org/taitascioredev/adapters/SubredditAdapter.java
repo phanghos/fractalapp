@@ -1,5 +1,6 @@
 package org.taitascioredev.adapters;
 
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,7 +11,9 @@ import android.widget.TextView;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
 
+import org.taitascioredev.fractal.MyApp;
 import org.taitascioredev.fractal.R;
+import org.taitascioredev.fractal.SubredditPageFragment;
 
 /**
  * Created by roberto on 26/05/15.
@@ -27,8 +30,9 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.View
 
         public ViewHolder(View v) {
             super(v);
-            name = (TextView) v.findViewById(R.id.text_subreddit_name);
-            url = (TextView) v.findViewById(R.id.text_subreddit_url);
+
+            name   = (TextView) v.findViewById(R.id.text_subreddit_name);
+            url    = (TextView) v.findViewById(R.id.text_subreddit_url);
         }
     }
 
@@ -45,9 +49,27 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Subreddit subreddit = objects.get(position);
+        final Subreddit subreddit = objects.get(position);
         holder.name.setText(subreddit.getTitle());
         holder.url.setText(subreddit.getDisplayName());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp app = (MyApp) context.getApplication();
+                app.setSubredditPaginator(null);
+                app.setSubmissionsSubreddit(null);
+
+                SubredditPageFragment fragment = new SubredditPageFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("subreddit_url", subreddit.getDisplayName());
+                fragment.setArguments(bundle);
+
+                context.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null).commit();
+            }
+        });
     }
 
     @Override

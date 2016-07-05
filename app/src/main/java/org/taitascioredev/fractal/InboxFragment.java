@@ -40,8 +40,8 @@ import org.taitascioredev.adapters.InboxAdapter;
  */
 public class InboxFragment extends Fragment {
 
-
     private InboxPaginator paginator;
+    private Listing<Message> list;
     private InboxAdapter adapter;
     private MyApp app;
     private ActionMode actionMode;
@@ -84,6 +84,7 @@ public class InboxFragment extends Fragment {
         final Drawable divider = getResources().getDrawable(R.drawable.divider_list);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
 
+        /*
         final ItemSelectionSupport selectionSupport = ItemSelectionSupport.addTo(mRecyclerView);
 
         ItemClickSupport clickSupport = ItemClickSupport.addTo(mRecyclerView);
@@ -143,6 +144,7 @@ public class InboxFragment extends Fragment {
                 return true;
             }
         });
+        */
 
         Spinner spinner = (Spinner) context.findViewById(R.id.spinner);
         spinner.setVisibility(View.VISIBLE);
@@ -209,9 +211,9 @@ public class InboxFragment extends Fragment {
         empty = (TextView) getView().findViewById(R.id.tv_empty);
 
         paginator = app.getInboxPaginator();
-        if (savedInstanceState == null && app.getMessages() == null)
+        if (app.getMessages() == null)
             new GetMessagesTask().execute();
-        else if (savedInstanceState == null && app.getMessages() != null) {
+        else {
             spinner.setSelection(app.getInboxSorting());
             adapter = new InboxAdapter(context, app.getMessages());
             mRecyclerView.setAdapter(adapter);
@@ -281,15 +283,15 @@ public class InboxFragment extends Fragment {
 
             if (messages != null) {
                 if (adapter == null) {
+                    list = messages;
                     adapter = new InboxAdapter(context, messages);
                     mAdapter = adapter;
                     mRecyclerView.setAdapter(adapter);
                 }
                 else {
-                    for (Message m : messages) {
+                    for (Message m : messages)
                         adapter.add(m);
-                        adapter.notifyItemInserted(adapter.getItemCount() - 1);
-                    }
+                    list = adapter.getList();
                 }
 
                 app.setInboxPaginator(paginator);
@@ -323,6 +325,7 @@ public class InboxFragment extends Fragment {
             wheel.setVisibility(View.GONE);
 
             if (messages != null) {
+                list = messages;
                 adapter = new InboxAdapter(context, messages);
                 mAdapter = adapter;
                 mRecyclerView.setAdapter(adapter);

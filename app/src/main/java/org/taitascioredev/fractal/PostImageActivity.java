@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,16 +17,21 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.pnikosis.materialishprogress.ProgressWheel;
 
@@ -46,7 +53,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /**
  * Created by roberto on 23/04/15.
  */
-public class PostImageActivity extends ActionBarActivity {
+public class PostImageActivity extends AppCompatActivity implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener {
 
     private String mCurrentPhotoPath;
     private String url;
@@ -59,10 +66,15 @@ public class PostImageActivity extends ActionBarActivity {
     private Toolbar toolbar;
     private TextView toolbarTitle;
 
+    private SurfaceView surfaceView;
+    private SurfaceHolder holder;
+    private MediaPlayer mediaPlayer;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_image);
+
         //getSupportActionBar().hide();
         image = (ImageView) findViewById(R.id.image_post);
         wheel = (ProgressWheel) findViewById(R.id.progress_wheel);
@@ -97,30 +109,6 @@ public class PostImageActivity extends ActionBarActivity {
         });
         url = getIntent().getStringExtra("url");
         new DownloadImage().execute(url);
-
-        /*
-        ImageViewFuture future = Ion.with(image)
-                .deepZoom()
-                .load(url);
-
-        */
-
-        /*
-        mAttacher = new PhotoViewAttacher(image);
-        mAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
-            @Override
-            public void onViewTap(View view, float v, float v2) {
-                ActionBar actionBar = getSupportActionBar();
-                if (actionBar.isShowing()) {
-                    actionBar.hide();
-                    toolbar.animate().translationYBy(toolbar.getHeight()).setInterpolator(new AccelerateInterpolator()).start();
-                } else {
-                    actionBar.show();
-                    toolbar.animate().translationYBy(-toolbar.getHeight()).setInterpolator(new DecelerateInterpolator()).start();
-                }
-            }
-        });
-        */
     }
 
     @Override
@@ -157,7 +145,7 @@ public class PostImageActivity extends ActionBarActivity {
                         getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("image_url", url);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "URL copied to the clipboard", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;
@@ -166,7 +154,7 @@ public class PostImageActivity extends ActionBarActivity {
 
     private String saveImage(Bitmap bitmap, boolean permanent) {
         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File dir = new File(root + "/Reddit");
+        File dir = new File(root + "/Fractal");
         if (!dir.exists())
             dir.mkdirs();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -221,6 +209,36 @@ public class PostImageActivity extends ActionBarActivity {
     private String getImageName(String url) {
         int index = url.lastIndexOf("/");
         return url.substring(index + 1);
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        try {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDisplay(holder);
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(this);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        mediaPlayer.start();
     }
 
     private class DownloadImage extends AsyncTask<String, Void, Bitmap> {

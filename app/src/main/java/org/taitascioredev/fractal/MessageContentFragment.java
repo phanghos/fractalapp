@@ -3,6 +3,7 @@ package org.taitascioredev.fractal;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.Spannable;
@@ -60,8 +61,8 @@ public class MessageContentFragment extends Fragment {
             int start = link.getStart();
             int end = link.getEnd();
             CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
-            ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            MyClickableSpan span = new MyClickableSpan() {
+
+            MyClickableSpan span = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorPrimary)) {
                 @Override
                 public void onClick(View widget) {
                     Log.d("debug", link.getText());
@@ -71,12 +72,15 @@ public class MessageContentFragment extends Fragment {
                             Bundle bundle = new Bundle();
                             bundle.putString("subreddit_url", link.getText().substring(3));
                             fragment.setArguments(bundle);
+
                             context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
                             break;
                     }
                 }
             };
+
             ssb.setSpan(span, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
         subject.setText(ssb, TextView.BufferType.SPANNABLE);
         subject.setMovementMethod(LinkMovementMethod.getInstance());

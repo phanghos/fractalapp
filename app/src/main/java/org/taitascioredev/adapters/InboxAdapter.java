@@ -1,6 +1,7 @@
 package org.taitascioredev.adapters;
 
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
@@ -11,11 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Message;
 
 import org.taitascioredev.fractal.FormattedLink;
+import org.taitascioredev.fractal.MessageContentFragment;
+import org.taitascioredev.fractal.MyApp;
 import org.taitascioredev.fractal.MyClickableSpan;
 import org.taitascioredev.fractal.R;
 import org.taitascioredev.fractal.SubredditPageFragment;
@@ -55,8 +59,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Message msg = objects.get(position);
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        final Message msg = objects.get(position);
         holder.author.setText(msg.getAuthor());
         //holder.subject.setText(msg.getSubject());
         String subjectStr = msg.getSubject();
@@ -65,8 +69,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
             int start = link.getStart();
             int end = link.getEnd();
             CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
-            ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            MyClickableSpan clickSpan = new MyClickableSpan() {
+
+            MyClickableSpan clickSpan = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorPrimary)) {
                 @Override
                 public void onClick(View widget) {
                     Log.d("debug", link.getText());
@@ -77,15 +81,34 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
                             Bundle bundle = new Bundle();
                             bundle.putString("subreddit_url", link.getText().substring(3));
                             fragment.setArguments(bundle);
-                            context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
+
+                            context.getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container, fragment)
+                                    .addToBackStack(null).commit();
                             break;
+                        default:
+                            Toast.makeText(context, "Link not yet supported", Toast.LENGTH_SHORT).show();
                     }
                 }
             };
             ssb.setSpan(clickSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
         holder.subject.setText(ssb, TextView.BufferType.SPANNABLE);
         holder.subject.setMovementMethod(LinkMovementMethod.getInstance());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyApp app = (MyApp) context.getApplication();
+                app.setMessage(msg);
+                MessageContentFragment fragment = new MessageContentFragment();
+
+                context.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null).commit();
+            }
+        });
     }
 
     @Override
@@ -97,9 +120,15 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
         return objects;
     }
 
-    public void add(Message msg) { objects.add(msg); }
+    public void add(int index, Message msg) {
+        objects.add(index, msg);
+        notifyItemInserted(index);
+    }
 
-    public void add(int index, Message msg) { objects.add(index, msg); }
+    public void add(Message msg) {
+        objects.add(msg);
+        notifyItemInserted(getItemCount() - 1);
+    }
 
     public boolean contains(Object object) { return objects.contains(object); }
 }

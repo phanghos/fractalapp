@@ -75,28 +75,13 @@ public class SubredditsFragmentUserless extends Fragment {
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecyclerView.scrollToPosition(0);
+                mRecyclerView.smoothScrollToPosition(0);
             }
         });
 
         mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
         final Drawable divider = getResources().getDrawable(R.drawable.divider_list);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
-        ItemClickSupport clickSupport = ItemClickSupport.addTo(mRecyclerView);
-        clickSupport.setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-            @Override
-            public void onItemClick(RecyclerView recyclerView, View view, int i, long l) {
-                MyApp app = (MyApp) context.getApplication();
-                app.setSubredditPaginator(null);
-                app.setSubmissionsSubreddit(null);
-                Subreddit subreddit = app.getSubreddits().get(i);
-                SubredditPageFragment fragment = new SubredditPageFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("subreddit_url", subreddit.getDisplayName());
-                fragment.setArguments(bundle);
-                context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
-            }
-        });
 
         final Spinner spinner = (Spinner) context.findViewById(R.id.spinner);
         spinner.setTag(0);

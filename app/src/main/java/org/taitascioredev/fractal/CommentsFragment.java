@@ -76,12 +76,6 @@ public class CommentsFragment extends Fragment {
         //mRecyclerView.setLayoutManager(mLayoutManager);
         final Drawable divider = getResources().getDrawable(R.drawable.divider_comments);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
-        ItemClickSupport clickSupport = ItemClickSupport.addTo(mRecyclerView);
-        clickSupport.setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-            @Override
-            public void onItemClick(RecyclerView recyclerView, View view, int i, long l) {
-            }
-        });
 
         Spinner spinner = (Spinner) context.findViewById(R.id.spinner);
         spinner.setVisibility(View.GONE);

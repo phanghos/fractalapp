@@ -3,6 +3,7 @@ package org.taitascioredev.viewholders;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -21,6 +22,7 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
     public LinearLayout layout;
     public LinearLayout layoutActions;
     public RelativeLayout lySmallThumb;
+    public ImageView btnPlay;
     public TextView title;
     public TextView type;
     public TextView votes;
@@ -49,6 +51,7 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
         layout          = (LinearLayout) v.findViewById(R.id.layout_title);
         layoutActions   = (LinearLayout) v.findViewById(R.id.layout_actions);
         lySmallThumb    = (RelativeLayout) v.findViewById(R.id.layout_small_thumbnail);
+        btnPlay         = (ImageView)v.findViewById(R.id.btn_play);
         title           = (TextView) v.findViewById(R.id.tv_title);
         type            = (TextView) v.findViewById(R.id.tv_type);
         votes           = (TextView) v.findViewById(R.id.text_votes);
@@ -61,7 +64,6 @@ public class SubmissionViewHolder extends RecyclerView.ViewHolder {
         thumbnailSmall  = (SimpleDraweeView) v.findViewById(R.id.thumbnail);
         url             = (TextView) v.findViewById(R.id.text_url);
         body            = (TextView) v.findViewById(R.id.text_body);
-        //thumbnail = (ImageView) v.findViewById(R.id.image_thumbnail);
         thumbnail       = (SimpleDraweeView) v.findViewById(R.id.image_thumbnail);
         score           = (TextView) v.findViewById(R.id.tv_score);
         comments        = (TextView) v.findViewById(R.id.tv_comments);

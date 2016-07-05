@@ -25,6 +25,13 @@
         <!--<item name="popupMenuStyle">@style/PopupMenuStyle</item>-->
     </style>
 
+    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.Light">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
     <style name="TextViewStyle" parent="@android:style/TextAppearance">
         <item name="fontPath">fonts/OpenSans-Regular.ttf</item>
     </style>

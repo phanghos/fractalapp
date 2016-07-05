@@ -14,6 +14,7 @@
     <color name="options_menu_color">#EDEDED</color>
     <color name="colorFab">#FF5722</color>
     <color name="colorListBackground">#E7E7E7</color>
+    <color name="itemSelectionColor">#F5F5F5</color>
 
     <color name="apptheme_color">#607d8b</color>
 </resources>

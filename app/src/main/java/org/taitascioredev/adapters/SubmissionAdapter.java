@@ -5,9 +5,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -42,6 +45,7 @@ import org.taitascioredev.fractal.FormattedLink;
 import org.taitascioredev.fractal.MyApp;
 import org.taitascioredev.fractal.MyClickableSpan;
 import org.taitascioredev.fractal.PostImageActivity;
+import org.taitascioredev.fractal.PostVideoActivity;
 import org.taitascioredev.fractal.R;
 import org.taitascioredev.viewholders.SubmissionViewHolder;
 import org.taitascioredev.fractal.SubredditPageFragment;
@@ -60,20 +64,25 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
 
     private final AppCompatActivity context;
     private final Listing<Submission> objects;
+    private final String pref;
     private Submission submission;
 
     public SubmissionAdapter(AppCompatActivity context, Listing<Submission> objects) {
         this.context = context;
         this.objects = objects;
+        this.pref    = Utils.getDisplayPreference(context);
     }
 
     @Override
     public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
 
-        String pref = Utils.getDisplayPreference(context);
         if (pref.equals("1"))
             v = LayoutInflater.from(context).inflate(R.layout.row_layout_card, parent, false);
+        else if (pref.equals("2"))
+            v = LayoutInflater.from(context).inflate(R.layout.row_layout_card_small, parent, false);
+        else if (pref.equals("3"))
+            v = LayoutInflater.from(context).inflate(R.layout.row_layout_card_mini, parent, false);
         else
             v = LayoutInflater.from(context).inflate(R.layout.row_layout_list, parent, false);
         return new SubmissionViewHolder(v);
@@ -82,10 +91,6 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
     @Override
     public void onBindViewHolder(final SubmissionViewHolder vh, final int position) {
         final Submission submission = objects.get(position);
-        String pref = Utils.getDisplayPreference(context);
-
-        //if (pref.equals("1"))
-            //setMargins(position, vh);
 
         setDate(submission, vh);
         setTitle(submission, vh);
@@ -97,7 +102,6 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         vh.score.setText(submission.getScore()+"");
         vh.comments.setText(submission.getCommentCount() + " comments");
         //vh.votes.setText(submission.getScore() + "");
-        //vh.comments.setText(submission.getCommentCount() + " comments");
 
         /*
         vh.popup.setOnClickListener(new View.OnClickListener() {
@@ -136,9 +140,9 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             }
         };
 
-        if (pref.equals("1"))
+        if (pref.equals("1") || pref.equals("2") || pref.equals("3"))
             vh.card.setOnClickListener(listener);
-        else if (pref.equals("2"))
+        else if (pref.equals("4"))
             vh.layout.setOnClickListener(listener);
 
         /*
@@ -365,7 +369,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             ssb = new SpannableStringBuilder(str);
             int index = str.lastIndexOf("(");
             ForegroundColorSpan boldSpan = new ForegroundColorSpan(
-                    context.getResources().getColor(R.color.colorDomain));
+                    ContextCompat.getColor(context, R.color.colorDomain));
             ssb.setSpan(boldSpan, index, str.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
 
@@ -378,7 +382,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             start = link.getStart();
             end = link.getEnd();
 
-            MyClickableSpan span = new MyClickableSpan(context.getResources().getColor(R.color.colorPrimary)) {
+            MyClickableSpan span = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorPrimary)) {
                 @Override
                 public void onClick(View widget) {
                     Log.d("onClick", link.getText());
@@ -405,7 +409,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             };
 
             ForegroundColorSpan colorSpan = new ForegroundColorSpan(
-                    context.getResources().getColor(R.color.colorPrimary));
+                    ContextCompat.getColor(context, R.color.colorPrimary));
 
             ssb.setSpan(span, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             ssb.setSpan(typefaceSpan, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -437,7 +441,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                         public void onClick(View v) {
                             String url = submission.getUrl();
                             Log.d("URL", url);
-                            context.startActivity(createIntent(submission.getDomain(), url));
+                            launchIntent(submission.getDomain(), url);
                         }
                     });
             }
@@ -466,7 +470,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                 public void onClick(View v) {
                     String url = submission.getUrl();
                     Log.d("URL", url);
-                    context.startActivity(createIntent(submission.getDomain(), url));
+                    context.startActivity(launchIntent(submission.getDomain(), url));
                 }
             });
             */
@@ -477,10 +481,10 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         SpannableStringBuilder ssb = new SpannableStringBuilder(text);
         CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
                 TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
-        MyClickableSpan clickSpan = new MyClickableSpan(context.getResources().getColor(R.color.colorDomain)) {
+        MyClickableSpan clickSpan = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorDomain)) {
             @Override
             public void onClick(View widget) {
-                // SET FRAGMENT
+                Toast.makeText(context, "Link not yet supported", Toast.LENGTH_SHORT).show();
             }
         };
         ssb.setSpan(clickSpan, 0, ("/u/" + submission.getAuthor()).length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -494,7 +498,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
                 TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
 
-        MyClickableSpan clickSpan = new MyClickableSpan(context.getResources().getColor(R.color.colorDomain)) {
+        MyClickableSpan clickSpan = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorDomain)) {
             @Override
             public void onClick(View widget) {
                 SubredditPageFragment fragment = new SubredditPageFragment();
@@ -536,19 +540,23 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         String url = submission.getUrl();
         OEmbed embed = submission.getOEmbedMedia();
         String domain = submission.getDomain();
-        Uri uri;
+        final Uri uri;
 
-        if (embed != null)
+        if (embed != null) {
             url = embed.getThumbnail().getUrl().toExternalForm();
+            Log.d("EMBED URL", url);
+        }
 
         if (domain.contains("imgur") && !url.contains("gallery") && !url.contains(".gif")) {
             final String img = url;
-            Log.d("IMAGE URL", submission.getTitle() + ":   " + url + " - " + Utils.getImageUrl(url, 'l'));
+            Log.d("IMAGE URL", Utils.getImageUrl(url, 'l'));
             uri = Uri.parse(Utils.getImageUrl(url, 'l'));
             vh.thumbnail.setImageURI(uri);
             vh.thumbnail.setVisibility(View.VISIBLE);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
+            vh.btnPlay.setVisibility(View.GONE);
+
             vh.thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -565,11 +573,14 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
             vh.type.setText("GALLERY");
-            vh.type.setVisibility(View.VISIBLE);
+            vh.btnPlay.setVisibility(View.GONE);
+
+            if (!pref.equals("2") && !pref.equals("3"))
+                vh.type.setVisibility(View.VISIBLE);
         }
         else if (url.contains(".gif") && !url.contains(".gifv")) {
             final String img = url;
-            Log.d("IMAGE URL", url);
+            Log.d("GALLERY URL", url);
             uri = Uri.parse(url);
 
             DraweeController controller = Fresco.newDraweeControllerBuilder()
@@ -581,34 +592,65 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             vh.thumbnail.setVisibility(View.VISIBLE);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
-            /*
+            vh.btnPlay.setVisibility(View.GONE);
+
             vh.thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d("IMG", img);
                     Log.d("getImageUrl", Utils.getImageUrl(img, 'l'));
                     Intent i = new Intent(context, PostImageActivity.class);
-                    i.putExtra("url", Utils.getImageUrl(img, 'l'));
+                    i.putExtra("url", img);
+                    //i.putExtra("url", Utils.getImageUrl(img, 'l'));
                     context.startActivity(i);
                 }
             });
-            */
         }
         else if (url.contains(".gifv")) {
+            /*
             vh.thumbnail.setVisibility(View.GONE);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
             vh.type.setText("GIF");
-            vh.type.setVisibility(View.VISIBLE);
+            if (!pref.equals("2") && !pref.equals("3"))
+                vh.type.setVisibility(View.VISIBLE);
+                */
+
+            final String videoUrl = url;
+            final String img = Utils.getImageUrl(url.replaceAll(".gifv", ""), 'm');
+
+            Log.d("THUMBNAIL URL", img + " (" + submission.getTitle() + ")");
+            Log.d("GIFV URL", url);
+            uri = Uri.parse(img);
+
+            vh.thumbnail.setImageURI(uri);
+            vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.lySmallThumb.setVisibility(View.GONE);
+            vh.divider.setVisibility(View.GONE);
+            vh.btnPlay.setVisibility(View.VISIBLE);
+
+            vh.thumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("IMG", img);
+                    //Intent i = new Intent(context, PostVideoActivity.class);
+                    Intent i = new Intent();
+                    String video = videoUrl.replace("gifv", "mp4");
+                    i.setDataAndType(Uri.parse(video), "video/*");
+                    //i.putExtra("url", img);
+                    context.startActivity(i);
+                }
+            });
         }
         else if (embed != null) {
-            Log.d("URL", url);
+            Log.d("EMBED URL", url);
             vh.thumbnail.setVisibility(View.GONE);
-            vh.divider.setVisibility(View.VISIBLE);
-            vh.lySmallThumb.setVisibility(View.VISIBLE);
+            //vh.divider.setVisibility(View.VISIBLE);
+            //vh.lySmallThumb.setVisibility(View.VISIBLE);
             uri = Uri.parse(url);
-            vh.thumbnailSmall.setImageURI(uri);
+            //vh.thumbnailSmall.setImageURI(uri);
             vh.url.setText(submission.getUrl());
+            vh.btnPlay.setVisibility(View.GONE);
 
             vh.lySmallThumb.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -631,7 +673,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                             public void onClick(View v) {
                                 String url = submission.getUrl();
                                 Log.d("URL", url);
-                                context.startActivity(createIntent(submission.getDomain(), url));
+                                launchIntent(submission.getDomain(), url);
                             }
                         });
                 }
@@ -640,6 +682,8 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         else {
             vh.thumbnail.setVisibility(View.GONE);
             vh.lySmallThumb.setVisibility(View.GONE);
+            vh.btnPlay.setVisibility(View.GONE);
+
             if (!submission.isSelfPost())
                 vh.divider.setVisibility(View.GONE);
         }
@@ -648,7 +692,8 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
     private void setGif(String url, SubmissionViewHolder vh) {
         if (url.contains(".gif") || url.contains(".gifv")) {
             vh.type.setText("GIF");
-            vh.type.setVisibility(View.VISIBLE);
+            if (!pref.equals("2") && !pref.equals("3"))
+                vh.type.setVisibility(View.VISIBLE);
         }
         else
             vh.type.setVisibility(View.GONE);
@@ -661,7 +706,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         return url + ".jpg";
     }
 
-    private Intent createIntent(String domain, String url) {
+    private void launchIntent(String domain, String url) {
         int j;
         Intent i;
         if (domain.contains("youtube.com")) {
@@ -674,8 +719,10 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                 }
                 String videoId = url.substring(index + 3, j);
                 i = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
+                context.startActivity(i);
             } catch (ActivityNotFoundException e) {
                 i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                context.startActivity(i);
             }
         }
         else if (domain.contains("youtu.be")) {
@@ -688,16 +735,20 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                 }
                 String videoId = url.substring(index + "youtu.be/".length(), j);
                 i = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
+                context.startActivity(i);
             } catch (ActivityNotFoundException e) {
                 i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                context.startActivity(i);
             }
         }
         else {
-            //i = new Intent(context, PostLinkActivity.class);
-            //i.putExtra("url", url);
-            i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            builder.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+            builder.setCloseButtonIcon(BitmapFactory.decodeResource(
+                    context.getResources(), R.drawable.ic_action_back));
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(context, Uri.parse(url));
         }
-        return i;
     }
 
     private int getVote(Submission submission) {

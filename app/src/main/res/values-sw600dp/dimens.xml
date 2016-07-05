@@ -8,8 +8,8 @@
     <dimen name="bottom_images_margin">10dp</dimen>
     <dimen name="icon_size">32px</dimen>
 
-    <dimen name="card_separation">8dp</dimen>
-    <dimen name="thumbail_height">250dp</dimen>
-    <dimen name="thumbnail_width_small">70dp</dimen>
-    <dimen name="thumbnail_height_small">70dp</dimen>
+    <dimen name="card_separation">1dp</dimen>
+    <dimen name="thumbail_height">300dp</dimen>
+    <dimen name="thumbnail_width_small">100dp</dimen>
+    <dimen name="thumbnail_height_small">100dp</dimen>
 </resources>

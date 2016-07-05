@@ -81,7 +81,7 @@ public class MainFragment extends Fragment {
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecyclerView.scrollToPosition(0);
+                mRecyclerView.smoothScrollToPosition(0);
             }
         });
 
@@ -126,7 +126,7 @@ public class MainFragment extends Fragment {
 
         mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
         String displayStyle = Utils.getDisplayPreference(context);
-        if (displayStyle.equals("2")) {
+        if (displayStyle.equals("4")) {
             Drawable divider = getResources().getDrawable(R.drawable.divider_list);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
         }
@@ -235,9 +235,9 @@ public class MainFragment extends Fragment {
         */
 
         paginator = app.getPaginator();
-        if (savedInstanceState == null && app.getSubmissions() == null)
+        if (app.getSubmissions() == null)
             new GetFrontPageTask().execute(true);
-        else if (savedInstanceState == null && app.getSubmissions() != null) {
+        else {
             spinner.setTag(app.getFrontPageSorting());
             spinner.setSelection(app.getFrontPageSorting(), false);
             adapter = new SubmissionAdapter(context, app.getSubmissions());

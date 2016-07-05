@@ -74,7 +74,7 @@ public class SubredditPageFragment extends Fragment {
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecyclerView.scrollToPosition(0);
+                mRecyclerView.smoothScrollToPosition(0);
             }
         });
 
@@ -117,7 +117,7 @@ public class SubredditPageFragment extends Fragment {
         mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
         Drawable divider = getResources().getDrawable(R.drawable.divider_card);
         String displayStyle = Utils.getDisplayPreference(context);
-        if (displayStyle.equals("2"))
+        if (displayStyle.equals("4"))
             divider = getResources().getDrawable(R.drawable.divider_list);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
 
@@ -154,7 +154,14 @@ public class SubredditPageFragment extends Fragment {
         }
         */
 
-        if (list == null)
+        if (savedInstanceState != null) {
+            spinner.setTag(app.getSubredditPageSorting());
+            spinner.setSelection(app.getSubredditPageSorting(), false);
+            adapter = new SubmissionAdapter(context, app.getSubmissionsSubreddit());
+            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+            mRecyclerView.setAdapter(adapter);
+        }
+        else if (list == null)
             new GetSubmissionsTask().execute(url);
         else {
             spinner.setTag(sorting);
@@ -164,6 +171,7 @@ public class SubredditPageFragment extends Fragment {
             mRecyclerView.setAdapter(adapter);
         }
     }
+
     private String getSorting() { return paginator.getSorting().name(); }
 
     private class GetSubmissionsTask extends AsyncTask<String, Void, Listing<Submission>> {
@@ -203,9 +211,9 @@ public class SubredditPageFragment extends Fragment {
                     list = adapter.getList();
                 }
 
-                //app.setSubredditPaginator(paginator);
-                //app.setSubmissionsSubreddit(adapter.getList());
-                //app.setSubredditPageSorting(sorting);
+                app.setSubredditPaginator(paginator);
+                app.setSubmissionsSubreddit(adapter.getList());
+                app.setSubredditPageSorting(sorting);
 
                 if (submissions.size() == 0)
                     empty.setVisibility(View.VISIBLE);
@@ -243,9 +251,9 @@ public class SubredditPageFragment extends Fragment {
                 //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
                 mRecyclerView.setAdapter(adapter);
 
-                //app.setSubredditPaginator(paginator);
-                //app.setSubmissionsSubreddit(adapter.getList());
-                //app.setSubredditPageSorting(sorting);
+                app.setSubredditPaginator(paginator);
+                app.setSubmissionsSubreddit(adapter.getList());
+                app.setSubredditPageSorting(sorting);
 
                 if (submissions.size() == 0)
                     empty.setVisibility(View.VISIBLE);

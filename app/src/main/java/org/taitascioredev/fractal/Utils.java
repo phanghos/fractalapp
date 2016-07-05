@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.text.Html;
@@ -17,6 +18,7 @@ import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.models.LoggedInAccount;
@@ -121,7 +123,7 @@ public class Utils {
                 //end = link.getEnd();
                 ssb.removeSpan(spans[i]);
 
-                MyClickableSpan span = new MyClickableSpan(context.getResources().getColor(R.color.colorPrimary)) {
+                MyClickableSpan span = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorPrimary)) {
                     @Override
                     public void onClick(View widget) {
                         Log.d("onClick", link.getText());
@@ -140,6 +142,8 @@ public class Utils {
                                         .replace(R.id.fragment_container, fragment)
                                         .addToBackStack(null).commit();
                                 break;
+                            default:
+                                Toast.makeText(context, "Link not yet supported", Toast.LENGTH_SHORT).show();
                         }
                     }
                 };

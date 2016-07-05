@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_title"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="#fff"
     android:descendantFocusability="blocksDescendants">
@@ -17,7 +17,7 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="3dp"
+            android:layout_marginBottom="2dp"
             android:textColor="@color/colorPrimaryText"
             android:textSize="14sp"/>
 
@@ -34,7 +34,7 @@
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="2dp"
             android:textColor="@color/colorSecondaryText"
             android:textSize="12sp"/>
 
@@ -48,16 +48,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorSecondaryText"
-                android:textSize="13sp"
-                fontPath="fonts/OpenSans-Light.ttf"/>
+                android:textSize="12sp"
+                fontPath="fonts/OpenSans-Semibold.ttf"/>
 
             <TextView
                 android:id="@+id/tv_subreddit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorSecondaryText"
-                android:textSize="13sp"
-                fontPath="fonts/OpenSans-Light.ttf"/>
+                android:textSize="12sp"
+                fontPath="fonts/OpenSans-Semibold.ttf"/>
 
         </LinearLayout>
 
@@ -72,7 +72,8 @@
         <RelativeLayout
             android:id="@+id/layout_small_thumbnail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/thumbnail"
@@ -113,21 +114,34 @@
 
     </LinearLayout>
 
-    <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/image_thumbnail"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_marginTop="16dp"
-        fresco:fadeDuration="300"
-        fresco:actualImageScaleType="focusCrop"
-        fresco:backgroundImage="@color/colorListBackground"
-        fresco:roundAsCircle="false"
-        fresco:roundedCornerRadius="0dp"
-        fresco:roundTopLeft="true"
-        fresco:roundTopRight="false"
-        fresco:roundBottomLeft="false"
-        fresco:roundBottomRight="true"
-        fresco:roundingBorderWidth="0dp"/>
+        android:layout_height="wrap_content">
+
+        <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/image_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginTop="16dp"
+            fresco:fadeDuration="300"
+            fresco:actualImageScaleType="focusCrop"
+            fresco:backgroundImage="@color/colorListBackground"
+            fresco:roundAsCircle="false"
+            fresco:roundedCornerRadius="0dp"
+            fresco:roundTopLeft="true"
+            fresco:roundTopRight="false"
+            fresco:roundBottomLeft="false"
+            fresco:roundBottomRight="true"
+            fresco:roundingBorderWidth="0dp"/>
+
+        <ImageView
+            android:id="@+id/btn_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play_circle_outline_48dp"/>
+
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/layout_actions"
@@ -209,20 +223,6 @@
                 android:src="@drawable/ic_like_grey"/>
 
         </LinearLayout>
-
-        <!--
-        <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
-            android:layout_weight="1"
-            android:src="@drawable/ic_share_grey"/>
-
-        <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
-            android:layout_weight="1"
-            android:src="@drawable/ic_share_grey"/>
-            -->
 
     </LinearLayout>
 

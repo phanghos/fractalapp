@@ -33,13 +33,17 @@
     </string-array>
 
     <string-array name="pref_displayStyle_entries">
-        <item>Card</item>
+        <item>Big Card</item>
+        <item>Small Card</item>
+        <item>Mini Card</item>
         <item>List</item>
     </string-array>
 
     <string-array name="pref_displayStyle_values">
         <item>1</item>
         <item>2</item>
+        <item>3</item>
+        <item>4</item>
     </string-array>
 
 </resources>
