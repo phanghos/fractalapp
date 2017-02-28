@@ -1,8 +1,31 @@
 <resources>
     <string name="app_name">Fractal</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
-    <string name="search_hint">Subreddit name</string>
+    <string name="hint_search">Subreddit name</string>
+    <string name="about_roberto">Roberto Tatasciore</string>
+    <string name="about_manuel">Manuel Coelho</string>
+    <string name="contact_email">tatasciorecont@gmail.com</string>
+    <string name="about_msg">Fractal for Reddit by Roberto Tatasciore\nLogo by Manuel Coelho</string>
+    <string name="about_contact">Contact: tatasciorecont@gmail.com</string>
+
+    <string name="fragment_main">MainFragment</string>
+    <string name="fragment_subreddits_userless">SubredditsFragmentUserless</string>
+    <string name="fragment_subreddits_oauth">SubredditsFragmentOAuth</string>
+    <string name="fragment_inbox">InboxFragment</string>
+    <string name="fragment_search_subreddit">SearchSubredditFragment</string>
+    <string name="fragment_preferences">PreferencesFragment</string>
+
+    <string name="msg_wait">Please wait...</string>
+    <string name="msg_no_more_posts">No more posts to load</string>
+    <string name="msg_no_more_subreddits">No more subreddits to load</string>
+
+    <string name="err_network">Something went wrong</string>
+    <string name="err_empty_field">Field cannot be empty</string>
+    <string name="err_no_email">No e-mail clients installed. E-mail address has been copied to the clipboard</string>
+
+    <bool name="is_tablet">false</bool>
+    <bool name="is_landscape">false</bool>
+
+    <string name="prefs_file">net.dean.jraw.prefs_file</string>
 </resources>

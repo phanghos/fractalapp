@@ -3,18 +3,14 @@
     <color name="colorPrimary">#009688</color>
     <color name="colorPrimaryDark">#00796B</color>
     <color name="colorAccent">#FF9800</color>
-    <color name="status_bar">#7B1FA2</color>
-    <color name="action_mode">#9C27B0</color>
-    <color name="colorBackground">#EDE7E7</color>
-    <color name="colorBackgroundAlt">#8BC34A</color>
     <color name="colorPrimaryText">#212121</color>
     <color name="colorSecondaryText">#727272</color>
+    <color name="colorActionMode">#9C27B0</color>
     <color name="colorDivider">#B6B6B6</color>
     <color name="colorDomain">#607D8B</color>
-    <color name="options_menu_color">#EDEDED</color>
     <color name="colorFab">#FF5722</color>
     <color name="colorListBackground">#E7E7E7</color>
     <color name="itemSelectionColor">#F5F5F5</color>
+    <color name="colorRipple">#CCC</color>
 
-    <color name="apptheme_color">#607d8b</color>
 </resources>

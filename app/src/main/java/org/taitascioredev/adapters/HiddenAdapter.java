@@ -1,9 +1,6 @@
 package org.taitascioredev.adapters;
 
 import android.content.ActivityNotFoundException;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,7 +15,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,11 +35,11 @@ import net.dean.jraw.models.VoteDirection;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.taitascioredev.fractal.CommentsFragment;
 import org.taitascioredev.fractal.FormattedLink;
-import org.taitascioredev.fractal.MyApp;
+import org.taitascioredev.fractal.App;
 import org.taitascioredev.fractal.MyClickableSpan;
 import org.taitascioredev.fractal.PostImageActivity;
 import org.taitascioredev.fractal.R;
-import org.taitascioredev.viewholders.SubmissionViewHolder;
+import org.taitascioredev.viewholders.SubmissionVH;
 import org.taitascioredev.fractal.SubredditPageFragment;
 import org.taitascioredev.fractal.Utils;
 
@@ -56,7 +52,7 @@ import uk.co.chrisjenx.calligraphy.TypefaceUtils;
 /**
  * Created by roberto on 14/11/15.
  */
-public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> implements PopupMenu.OnMenuItemClickListener {
+public class HiddenAdapter extends RecyclerView.Adapter<SubmissionVH> implements PopupMenu.OnMenuItemClickListener {
 
     private final AppCompatActivity context;
     private final Listing<Contribution> objects;
@@ -75,7 +71,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
     }
 
     @Override
-    public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SubmissionVH onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
 
         String pref = Utils.getDisplayPreference(context);
@@ -83,11 +79,11 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
             v = LayoutInflater.from(context).inflate(R.layout.row_layout_card, parent, false);
         else
             v = LayoutInflater.from(context).inflate(R.layout.row_layout_list, parent, false);
-        return new SubmissionViewHolder(v);
+        return new SubmissionVH(v);
     }
 
     @Override
-    public void onBindViewHolder(final SubmissionViewHolder holder, final int position) {
+    public void onBindViewHolder(final SubmissionVH holder, final int position) {
         /*
         holder.popup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,7 +114,8 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
         submission = (Submission) objects.get(position);
 
         PrettyTime pretty = new PrettyTime(new Locale("en"));
-        String dateStr = pretty.format(submission.getCreatedUtc());
+        String dateStr = pretty.format(submission.getCreated());
+        //String dateStr = pretty.format(submission.getCreatedUtc());
         int i;
         if (dateStr.contains("hour")) {
             i = dateStr.indexOf("hour");
@@ -268,9 +265,6 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
                 }
             });
 
-        // votes
-        holder.votes.setText(submission.getScore() + "");
-
         /*
         VoteDirection voteDir;
         if (!submission.getChangedVote())
@@ -285,7 +279,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
         holder.up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 int vote = getVote(submission);
                 if (app.getClient().getAuthenticationMethod().isUserless())
                     Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
@@ -300,7 +294,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
         holder.down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 int vote = getVote(submission);
                 if (app.getClient().getAuthenticationMethod().isUserless())
                     Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
@@ -313,23 +307,20 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
             }
         });
 
-        // comments
-        holder.comments.setText(submission.getCommentCount() + " comments");
-
         if (vt == VoteDirection.NO_VOTE.getValue()) {
             //Log.d("debug", "NO VOTE");
-            holder.up.setImageResource(R.drawable.up_24dp);
-            holder.down.setImageResource(R.drawable.down_24dp);
+            holder.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+            holder.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
         }
         else if (vt == VoteDirection.UPVOTE.getValue()) {
             //Log.d("debug", "UP VOTE");
-            holder.up.setImageResource(R.drawable.up2);
-            holder.down.setImageResource(R.drawable.down_24dp);
+            holder.up.setImageResource(R.drawable.ic_arrow_upward_yellow_24dp);
+            holder.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
         }
         else {
             //Log.d("debug", "DOWN VOTE");
-            holder.up.setImageResource(R.drawable.up_24dp);
-            holder.down.setImageResource(R.drawable.down2);
+            holder.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+            holder.down.setImageResource(R.drawable.ic_arrow_downward_yellow_24dp);
         }
 
         // author
@@ -368,7 +359,8 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
 
         // body
         if (submission.isSelfPost() && submission.getSelftext().length() > 0) {
-            final Spanned spanned = Html.fromHtml(submission.getSelftextHtml());
+            final Spanned spanned = Html.fromHtml(submission.getSelftext());
+            //final Spanned spanned = Html.fromHtml(submission.getSelftextHtml());
             holder.body.setText(Utils.setUrlSpans(context, spanned, true));
             holder.body.setMovementMethod(LinkMovementMethod.getInstance());
             holder.body.setVisibility(View.VISIBLE);
@@ -467,6 +459,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
+            /*
             case R.id.share:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.putExtra(Intent.EXTRA_TEXT, submission.getTitle() + " " + submission.getUrl());
@@ -481,7 +474,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
                 context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
                 return true;
             case R.id.save:
-                new SaveSubmissionTask().execute();
+                new SaveSubmissionAsync().execute();
                 return true;
             case R.id.permalink_submission:
                 String baseUrl = "https://www.reddit.com";
@@ -490,6 +483,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
                 clipboard.setPrimaryClip(data);
                 Toast.makeText(context, "Permalink copied to the clipboard", Toast.LENGTH_SHORT).show();
                 return true;
+                */
             default:
                 return false;
         }
@@ -541,12 +535,15 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
     }
 
     private int getVote(Submission submission) {
+        /*
         VoteDirection voteDir;
         if (!submission.getChangedVote())
             voteDir = submission.getVote();
         else
             voteDir = submission.getVote2();
         return voteDir.getValue();
+        */
+        return -1;
     }
 
     private class VoteTask extends AsyncTask<Void, Void, Boolean> {
@@ -565,7 +562,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             try {
                 manager.vote(submission, vote);
@@ -583,16 +580,16 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
                 int value = vote.getValue();
                 Log.d("debug", "VOTED: " + value);
                 if (value == VoteDirection.NO_VOTE.getValue()) {
-                    image1.setImageResource(R.drawable.up_24dp);
-                    image2.setImageResource(R.drawable.down_24dp);
+                    image1.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+                    image2.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
                 }
                 if (value == VoteDirection.UPVOTE.getValue()) {
-                    image1.setImageResource(R.drawable.up2);
-                    image2.setImageResource(R.drawable.down_24dp);
+                    image1.setImageResource(R.drawable.ic_arrow_upward_yellow_24dp);
+                    image2.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
                 }
                 else {
-                    image1.setImageResource(R.drawable.down2);
-                    image2.setImageResource(R.drawable.up_24dp);
+                    image1.setImageResource(R.drawable.ic_arrow_downward_yellow_24dp);
+                    image2.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
                 }
                 final int index = getPosition(submission);
                 Log.d("debug", "INDEX: " + index);
@@ -602,8 +599,10 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
                 //notifyDataSetChanged();
                 //notifyDataSetChanged();
                 //notifyItemRemoved(index);
-                submission.setChangedVote(true);
-                submission.setVote(vote);
+
+                //submission.setChangedVote(true);
+                //submission.setVote(vote);
+
                 //add(index, aux);
                 notifyDataSetChanged();
                 //notifyItemInserted(index);
@@ -619,7 +618,7 @@ public class HiddenAdapter extends RecyclerView.Adapter<SubmissionViewHolder> im
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             if (submission.isSaved())
                 try {

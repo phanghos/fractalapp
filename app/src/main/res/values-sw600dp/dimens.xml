@@ -1,15 +1,14 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">10dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="options_menu_height">30dp</dimen>
-    <dimen name="bottom_images_dimension_big">60dp</dimen>
-    <dimen name="bottom_images_dimension_small">50dp</dimen>
-    <dimen name="bottom_images_margin">10dp</dimen>
-    <dimen name="icon_size">32px</dimen>
-
-    <dimen name="card_separation">1dp</dimen>
-    <dimen name="thumbail_height">300dp</dimen>
+    <dimen name="icon_size">40dp</dimen>
+    <dimen name="logo_size">125dp</dimen>
+    <dimen name="card_separation">24dp</dimen>
+    <dimen name="thumbnail_height">550dp</dimen>
     <dimen name="thumbnail_width_small">100dp</dimen>
     <dimen name="thumbnail_height_small">100dp</dimen>
+    <dimen name="title_text_size">16sp</dimen>
+    <dimen name="date_text_size">14sp</dimen>
+    <dimen name="author_text_size">12sp</dimen>
+    <dimen name="score_text_size">18sp</dimen>
+    <dimen name="comment_count_text_size">14sp</dimen>
 </resources>

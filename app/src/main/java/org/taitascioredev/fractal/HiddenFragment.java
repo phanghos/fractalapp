@@ -24,8 +24,6 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.UserContributionPaginator;
 
-import org.lucasr.twowayview.widget.DividerItemDecoration;
-import org.lucasr.twowayview.widget.TwoWayView;
 import org.taitascioredev.adapters.HiddenAdapter;
 
 /**
@@ -35,10 +33,10 @@ public class HiddenFragment extends Fragment {
 
     private UserContributionPaginator paginator;
     private HiddenAdapter adapter;
-    private MyApp app;
+    private App app;
     private Submission submission;
 
-    private TwoWayView mRecyclerView;
+    //private TwoWayView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -56,17 +54,19 @@ public class HiddenFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         context = (AppCompatActivity) getActivity();
-        app = (MyApp) context.getApplication();
+        app = (App) context.getApplication();
         context.getSupportActionBar().setTitle("Hidden");
         context.getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
+        /*
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mRecyclerView.scrollToPosition(0);
             }
         });
+        */
 
         NavigationView navView = (NavigationView) context.findViewById(R.id.navigation_view);
         navView.getMenu().findItem(R.id.hidden).setChecked(true);
@@ -74,19 +74,19 @@ public class HiddenFragment extends Fragment {
         Spinner spinner = (Spinner) context.findViewById(R.id.spinner);
         spinner.setVisibility(View.GONE);
 
-        mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
+        //mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
         //mLayoutManager = new LinearLayoutManager(context);
         //mRecyclerView.setLayoutManager(mLayoutManager);
         Drawable divider = getResources().getDrawable(R.drawable.divider_card);
         String displayStyle = Utils.getDisplayPreference(context);
         if (displayStyle.equals("2"))
             divider = getResources().getDrawable(R.drawable.divider_list);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
+        //mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
 
         refreshWidget = (SwipyRefreshLayout) getView().findViewById(R.id.swipyrefreshlayout);
         refreshWidget.setDirection(SwipyRefreshLayoutDirection.BOTH);
         /*
-        refreshWidget.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+        mRefreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
                 if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP)
@@ -94,7 +94,7 @@ public class HiddenFragment extends Fragment {
                 else if (paginator != null && paginator.hasNext())
                     new GetFrontPageTask().execute(false);
                 else {
-                    refreshWidget.setRefreshing(false);
+                    mRefreshLayout.setRefreshing(false);
                     Toast.makeText(context.getApplicationContext(), "No more posts to load", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -109,20 +109,20 @@ public class HiddenFragment extends Fragment {
         if (savedInstanceState == null && app.getSubmissions() == null)
             new GetHiddenTask().execute();
         if (savedInstanceState == null && app.getSubmissions() != null) {
-            adapter = new SubmissionAdapter(context, app.getSubmissions());
-            mAdapter = adapter;
-            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
-            mRecyclerView.setAdapter(adapter);
+            mAdapter = new SubmissionAdapter(context, app.getSubmissions());
+            mAdapter = mAdapter;
+            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(mAdapter));
+            mRecyclerView.setAdapter(mAdapter);
         }
         */
 
         if (savedInstanceState == null && adapter == null)
             new GetHiddenTask().execute();
         if (savedInstanceState == null && adapter != null) {
-            //adapter = new SubmissionAdapter(context, app.getSubmissions());
-            //mAdapter = adapter;
-            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
-            mRecyclerView.setAdapter(adapter);
+            //mAdapter = new SubmissionAdapter(context, app.getSubmissions());
+            //mAdapter = mAdapter;
+            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(mAdapter));
+            //mRecyclerView.setAdapter(mAdapter);
         }
 
         //if (Utils.username != null)
@@ -160,7 +160,7 @@ public class HiddenFragment extends Fragment {
                 if (adapter == null) {
                     adapter = new HiddenAdapter(context, contributions);
                     mAdapter = adapter;
-                    mRecyclerView.setAdapter(adapter);
+                    //mRecyclerView.setAdapter(mAdapter);
 
                     if (contributions.size() == 0) {
                         empty.setVisibility(View.VISIBLE);

@@ -32,9 +32,9 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
         if (displayPref.equals("1"))
             p.setSummary("Big Card");
         else if (displayPref.equals("2"))
-            p.setSummary("Small Card");
+            p.setSummary("Full Width Card");
         else if (displayPref.equals("3"))
-            p.setSummary("Mini Card");
+            p.setSummary("Small Card");
         else
             p.setSummary("List");
     }
@@ -51,9 +51,9 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                     if (displayPref.equals("1"))
                         p.setSummary("Big Card");
                     else if (displayPref.equals("2"))
-                        p.setSummary("Small Card");
+                        p.setSummary("Full Width Card");
                     else if (displayPref.equals("3"))
-                        p.setSummary("Mini Card");
+                        p.setSummary("Small Card");
                     else
                         p.setSummary("List");
                 }

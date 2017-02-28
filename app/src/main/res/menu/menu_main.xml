@@ -1,21 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/search"
         android:title="Search subreddit"
         android:icon="@drawable/ic_action_search"
-        app:showAsAction="collapseActionView|ifRoom"
+        app:showAsAction="ifRoom"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
-    <!--
+
     <item
-        android:id="@+id/random"
-        android:title="Random subreddit"
-        app:showAsAction="ifRoom"/>
-        -->
-    <!--
-    <item android:id="@+id/up"
-        android:title="Go to top"
-        android:icon="@drawable/ic_go_top"
-        app:showAsAction="ifRoom" />
-        -->
+        android:id="@+id/item_about"
+        android:title="About"
+        app:showAsAction="never"/>
 </menu>

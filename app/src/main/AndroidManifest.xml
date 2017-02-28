@@ -5,19 +5,19 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:allowBackup="true"
         tools:replace="android:icon"
-        android:name=".MyApp"
-        android:icon="@drawable/logo"
+        android:allowBackup="true"
+        android:name=".App"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <activity android:name=".PostImageActivity"
-            android:theme="@style/ActionBarOverlayTheme"/>
-        <activity android:name=".PostVideoActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"/>
-        <activity android:name=".EntryActivity">
+
+        <activity android:name=".EntryActivity"
+            android:configChanges="screenSize"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,50 +28,38 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="https" android:host="www.reddit.com" android:path="/subreddits"/>
-
-                <!--
-                <data android:scheme="http" android:host="www.reddit.com" android:path="/subreddits" />
-                <data android:scheme="https" android:host="www.reddit.com" android:path="/subreddits"/>
-                <data android:scheme="http" android:host="www.reddit.com" android:pathPrefix="/r" />
-                <data android:scheme="https" android:host="www.reddit.com" android:pathPrefix="/r" />
-                <data android:scheme="http" android:host="www.reddit.com" android:pathPrefix="/comments" />
-                <data android:scheme="https" android:host="www.reddit.com" android:pathPrefix="/comments" />
-                -->
             </intent-filter>
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="https" android:host="www.reddit.com" android:pathPrefix="/r"/>
             </intent-filter>
-
         </activity>
+
         <activity android:name=".MainActivity"
             android:configChanges="keyboardHidden|screenSize"
             android:windowSoftInputMode="stateHidden">
+
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+
         </activity>
 
-        <!--
-        <activity
-            android:name="com.airbnb.deeplinkdispatch.DeepLinkActivity"
-            android:theme="@android:style/Theme.NoDisplay">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" android:host="www.reddit.com" />
-        </intent-filter>
-        </activity>
-        -->
+        <activity android:name=".PostImageActivity"
+            android:theme="@style/ActionBarOverlayTheme"/>
+
+        <activity android:name=".PostVideoActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"/>
+
+        <activity android:name=".GalleryActivity"/>
+
+        <meta-data android:name="net.dean.jraw.REDDIT_USERNAME" android:value="taitasciore" />
 
     </application>
 

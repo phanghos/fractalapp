@@ -5,11 +5,9 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -21,11 +19,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,25 +29,32 @@ import com.facebook.drawee.interfaces.DraweeController;
 
 import net.dean.jraw.ApiException;
 import net.dean.jraw.managers.AccountManager;
-import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.OEmbed;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.VoteDirection;
 
 import org.ocpsoft.prettytime.PrettyTime;
+import org.taitascioredev.fractal.App;
 import org.taitascioredev.fractal.CommentsFragment;
+import org.taitascioredev.fractal.Constants;
+import org.taitascioredev.fractal.CustomLinkMovementMethod;
+import org.taitascioredev.fractal.Data;
 import org.taitascioredev.fractal.FormattedLink;
-import org.taitascioredev.fractal.MyApp;
+import org.taitascioredev.fractal.GalleryActivity;
+import org.taitascioredev.fractal.ImgurImage;
 import org.taitascioredev.fractal.MyClickableSpan;
 import org.taitascioredev.fractal.PostImageActivity;
 import org.taitascioredev.fractal.PostVideoActivity;
 import org.taitascioredev.fractal.R;
-import org.taitascioredev.viewholders.SubmissionViewHolder;
 import org.taitascioredev.fractal.SubredditPageFragment;
 import org.taitascioredev.fractal.Utils;
+import org.taitascioredev.viewholders.CommentVH;
+import org.taitascioredev.viewholders.SubmissionVH;
 
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyTypefaceSpan;
 import uk.co.chrisjenx.calligraphy.TypefaceUtils;
@@ -60,36 +62,35 @@ import uk.co.chrisjenx.calligraphy.TypefaceUtils;
 /**
  * Created by roberto on 26/05/15.
  */
-public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder> implements PopupMenu.OnMenuItemClickListener {
+public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionVH> {
 
     private final AppCompatActivity context;
-    private final Listing<Submission> objects;
+    private final List<Submission> objects;
+    private final Map<String, Data> galleryData;
     private final String pref;
     private Submission submission;
 
-    public SubmissionAdapter(AppCompatActivity context, Listing<Submission> objects) {
-        this.context = context;
-        this.objects = objects;
-        this.pref    = Utils.getDisplayPreference(context);
+    public SubmissionAdapter(AppCompatActivity context, List<Submission> objects) {
+        this.context     = context;
+        this.objects     = objects;
+        this.galleryData = new HashMap<String, Data>();
+        this.pref        = Utils.getDisplayPreference(context);
     }
 
     @Override
-    public SubmissionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SubmissionVH onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
 
-        if (pref.equals("1"))
-            v = LayoutInflater.from(context).inflate(R.layout.row_layout_card, parent, false);
-        else if (pref.equals("2"))
-            v = LayoutInflater.from(context).inflate(R.layout.row_layout_card_small, parent, false);
-        else if (pref.equals("3"))
-            v = LayoutInflater.from(context).inflate(R.layout.row_layout_card_mini, parent, false);
-        else
-            v = LayoutInflater.from(context).inflate(R.layout.row_layout_list, parent, false);
-        return new SubmissionViewHolder(v);
+        if      (pref.equals("1")) v = LayoutInflater.from(context).inflate(R.layout.row_layout_card, parent, false);
+        else if (pref.equals("2")) v = LayoutInflater.from(context).inflate(R.layout.row_layout_card_full_width, parent, false);
+        else if (pref.equals("3")) v = LayoutInflater.from(context).inflate(R.layout.row_layout_card_small, parent, false);
+        else                       v = LayoutInflater.from(context).inflate(R.layout.row_layout_list, parent, false);
+
+        return new SubmissionVH(v);
     }
 
     @Override
-    public void onBindViewHolder(final SubmissionViewHolder vh, final int position) {
+    public void onBindViewHolder(final SubmissionVH vh, final int position) {
         final Submission submission = objects.get(position);
 
         setDate(submission, vh);
@@ -98,37 +99,15 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         setSubreddit(submission, vh);
         setBody(submission, vh);
         setThumbnail(submission, vh);
-        setGif(submission.getUrl(), vh);
+        setVote(submission, vh);
         vh.score.setText(submission.getScore()+"");
         vh.comments.setText(submission.getCommentCount() + " comments");
-        //vh.votes.setText(submission.getScore() + "");
 
-        /*
-        vh.popup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu menu = new PopupMenu(context, v);
-                menu.setOnMenuItemClickListener(SubmissionAdapter.this);
-                MenuInflater inflater = menu.getMenuInflater();
-                inflater.inflate(R.menu.popup, menu.getMenu());
-                menu.show();
-
-                MenuItem item = menu.getMenu().findItem(R.id.comments);
-                item.setTitle("Comments (" + submission.getCommentCount() + ")");
-
-                item = menu.getMenu().findItem(R.id.save);
-                if (submission.isSaved())
-                    item.setTitle("Unsave");
-                else
-                    item.setTitle("Save");
-            }
-        });
-        */
-
-        final View.OnClickListener listener = new View.OnClickListener() {
+        vh.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("SUBMISSION ID", submission.getId()+"");
+
                 CommentsFragment fragment = new CommentsFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("id", submission.getId());
@@ -138,76 +117,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                         .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null).commit();
             }
-        };
-
-        if (pref.equals("1") || pref.equals("2") || pref.equals("3"))
-            vh.card.setOnClickListener(listener);
-        else if (pref.equals("4"))
-            vh.layout.setOnClickListener(listener);
-
-        /*
-        VoteDirection voteDir;
-        if (!submission.getChangedVote())
-            voteDir = submission.getVote();
-        else
-            voteDir = submission.getVote2();
-        final int vote = voteDir.getValue();
-        */
-        int vt = getVote(submission);
-
-        /*
-        // vote img
-        vh.up.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
-                int vote = getVote(submission);
-                if (app.getClient().getAuthenticationMethod().isUserless())
-                    Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
-                else {
-                    if (vote == VoteDirection.NO_VOTE.getValue() || vote == VoteDirection.DOWNVOTE.getValue())
-                        new VoteTask(submission, VoteDirection.UPVOTE, vh.up, vh.down).execute();
-                    else
-                        new VoteTask(submission, VoteDirection.NO_VOTE, vh.up, vh.down).execute();
-                }
-            }
         });
-        vh.down.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
-                int vote = getVote(submission);
-                if (app.getClient().getAuthenticationMethod().isUserless())
-                    Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
-                else {
-                    if (vote == VoteDirection.NO_VOTE.getValue() || vote == VoteDirection.UPVOTE.getValue())
-                        new VoteTask(submission, VoteDirection.DOWNVOTE, vh.down, vh.up).execute();
-                    else
-                        new VoteTask(submission, VoteDirection.NO_VOTE, vh.up, vh.down).execute();
-                }
-            }
-        });
-        */
-
-        /*
-        if (vt == VoteDirection.NO_VOTE.getValue()) {
-            //Log.d("VOTE", "NO VOTE");
-            vh.up.setImageResource(R.drawable.up_24dp);
-            vh.down.setImageResource(R.drawable.down_24dp);
-        }
-        else if (vt == VoteDirection.UPVOTE.getValue()) {
-            //Log.d("VOTE", "UP VOTE");
-            vh.up.setImageResource(R.drawable.up2);
-            vh.down.setImageResource(R.drawable.down_24dp);
-        }
-        else {
-            //Log.d("VOTE", "DOWN VOTE");
-            vh.up.setImageResource(R.drawable.up_24dp);
-            vh.down.setImageResource(R.drawable.down2);
-        }
-        */
-
-        //Log.d("debug", submission.getDomain() + ": " + url);
 
         /*
         else if (!submission.isSelfPost()) {
@@ -237,59 +147,20 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         vh.share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_SEND);
-                i.putExtra(Intent.EXTRA_TEXT, submission.getTitle() + " " + submission.getUrl());
-                i.setType("text/plain");
-                context.startActivity(i);
+                sharePost(submission);
             }
         });
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.share:
-                Intent i = new Intent(Intent.ACTION_SEND);
-                i.putExtra(Intent.EXTRA_TEXT, submission.getTitle() + " " + submission.getUrl());
-                i.setType("text/plain");
-                context.startActivity(i);
-                return true;
-            case R.id.comments:
-                CommentsFragment fragment = new CommentsFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("id", submission.getId());
-                fragment.setArguments(bundle);
-                context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
-                return true;
-            case R.id.save:
-                new SaveSubmissionTask().execute();
-                return true;
-            case R.id.permalink_submission:
-                String baseUrl = "https://www.reddit.com";
-                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData data = ClipData.newPlainText("permalink", baseUrl + submission.getPermalink());
-                clipboard.setPrimaryClip(data);
-                Toast.makeText(context, "Permalink copied to the clipboard", Toast.LENGTH_SHORT).show();
-                return true;
-            /*
-            case R.id.gold:
-
-                return true;
-                */
-            default:
-                return false;
-        }
-    }
-
-    @Override
     public int getItemCount() { return objects.size(); }
 
-    public Submission getItem(int position) {
-        return objects.get(position);
+    public Submission getItem(int pos) {
+        return objects.get(pos);
     }
 
     @Override
-    public long getItemId(int position) { return Long.parseLong(getItem(position).getId()); }
+    public long getItemId(int pos) { return Long.parseLong(getItem(pos).getId()); }
 
     public void add(int index, Submission submission) {
         objects.add(index, submission);
@@ -298,27 +169,41 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
 
     public void add(Submission submission) {
         objects.add(submission);
-        notifyItemInserted(getItemCount() - 1);
+        notifyItemInserted(getItemCount());
+    }
+
+    public void set(int pos, Submission submission) {
+        objects.set(pos, submission);
+        notifyItemChanged(pos);
     }
 
     public boolean contains(Object object) { return objects.contains(object); }
 
-    public Submission remove(int index) { return objects.remove(index); }
+    public Submission remove(int pos) { return objects.remove(pos); }
 
-    public boolean remove(Submission submission) { return objects.remove(submission); }
+    public boolean remove(Submission s) { return objects.remove(s); }
 
-    public Listing<Submission> getList() { return objects; }
+    public List<Submission> getList() { return objects; }
 
     public int getPosition(Submission submission) {
+        int i = 0;
+        for (Submission s : objects) {
+            if (s.getId().equals(submission.getId()))
+                return i;
+            i++;
+        }
+
+        /*
         Iterator<Submission> iter = objects.iterator();
         for (int i = 0; iter.hasNext(); i++)
             if (iter.next().getId() == submission.getId())
                 return i;
+                */
 
         return -1;
     }
 
-    private void setMargins(int position, SubmissionViewHolder vh) {
+    private void setMargins(int position, SubmissionVH vh) {
         if (position == 0) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) vh.card.getLayoutParams();
             params.topMargin = 8;
@@ -331,10 +216,11 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         }
     }
 
-    private void setDate(Submission submission, SubmissionViewHolder vh) {
+    private void setDate(Submission submission, SubmissionVH vh) {
         int i;
         PrettyTime pretty = new PrettyTime(new Locale("en"));
-        String dateStr = pretty.format(submission.getCreatedUtc());
+        String dateStr = pretty.format(submission.getCreated());
+        //String dateStr = pretty.format(submission.getCreatedUtc());
 
         if (dateStr.contains("hour")) {
             i = dateStr.indexOf("hour");
@@ -356,21 +242,19 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         vh.date.setText(dateStr);
     }
 
-    private void setTitle(final Submission submission, final SubmissionViewHolder vh) {
+    private void setTitle(final Submission submission, final SubmissionVH vh) {
         int start;
         int end;
         String str = submission.getTitle();
         SpannableStringBuilder ssb = null;
-        CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
-                TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
 
         if (!submission.isSelfPost()) {
-            str = submission.getTitle() + " (" + submission.getDomain() + ")";
+            str = Utils.toHtml(submission.getTitle()) + " (" + submission.getDomain() + ")";
             ssb = new SpannableStringBuilder(str);
             int index = str.lastIndexOf("(");
-            ForegroundColorSpan boldSpan = new ForegroundColorSpan(
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(
                     ContextCompat.getColor(context, R.color.colorDomain));
-            ssb.setSpan(boldSpan, index, str.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            ssb.setSpan(colorSpan, index, str.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
 
         if (ssb == null) {
@@ -388,7 +272,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                     Log.d("onClick", link.getText());
                     switch (link.getType()) {
                         case FormattedLink.TYPE_SUBREDDIT:
-                            MyApp app = (MyApp) context.getApplication();
+                            App app = (App) context.getApplication();
                             app.setSubredditPaginator(null);
                             app.setSubmissionsSubreddit(null);
 
@@ -408,6 +292,9 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                 }
             };
 
+            CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
+                    TypefaceUtils.load(context.getAssets(), "fonts/OpenSans-Semibold.ttf"));
+
             ForegroundColorSpan colorSpan = new ForegroundColorSpan(
                     ContextCompat.getColor(context, R.color.colorPrimary));
 
@@ -419,64 +306,43 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         MyClickableSpan clickableSpan = new MyClickableSpan() {
             @Override
             public void onClick(View widget) {
-                View.OnClickListener listener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        CommentsFragment fragment = new CommentsFragment();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("id", submission.getId());
-                        fragment.setArguments(bundle);
+                if (submission.isSelfPost()) {
+                    CommentsFragment fragment = new CommentsFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("id", submission.getId());
+                    fragment.setArguments(bundle);
 
-                        context.getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, fragment)
-                                .addToBackStack(null).commit();
-                    }
-                };
-
-                if (submission.isSelfPost())
-                    vh.title.setOnClickListener(listener);
-                else
-                    vh.title.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String url = submission.getUrl();
-                            Log.d("URL", url);
-                            launchIntent(submission.getDomain(), url);
-                        }
-                    });
+                    context.getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .addToBackStack(null).commit();
+                }
+                else {
+                    String url = submission.getUrl();
+                    Log.d("URL", url);
+                    Utils.launchIntent(context, submission.getDomain(), url);
+                }
             }
         };
         ssb.setSpan(clickableSpan, 0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
         vh.title.setText(ssb, TextView.BufferType.SPANNABLE);
-        vh.title.setMovementMethod(LinkMovementMethod.getInstance());
-
-        /*
-        View.OnClickListener listener = new View.OnClickListener() {
+        vh.title.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                CommentsFragment fragment = new CommentsFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("id", submission.getId());
-                fragment.setArguments(bundle);
-            }
-        };
+            public boolean onLongClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData data = ClipData.newPlainText("title", submission.getTitle());
+                clipboard.setPrimaryClip(data);
 
-        if (submission.isSelfPost())
-            vh.title.setOnClickListener(listener);
-        else
-            vh.title.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String url = submission.getUrl();
-                    Log.d("URL", url);
-                    context.startActivity(launchIntent(submission.getDomain(), url));
-                }
-            });
-            */
+                Toast.makeText(context, "Comment copied to the clipboard", Toast.LENGTH_SHORT).show();
+
+                return true;
+            }
+        });
+        //vh.title.setMovementMethod(LinkMovementMethod.getInstance());
+        vh.title.setOnTouchListener(new CustomLinkMovementMethod());
     }
 
-    private void setAuthor(Submission submission, SubmissionViewHolder vh) {
+    private void setAuthor(Submission submission, SubmissionVH vh) {
         String text = "/u/" + submission.getAuthor() + "  -  ";
         SpannableStringBuilder ssb = new SpannableStringBuilder(text);
         CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
@@ -492,7 +358,7 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         vh.author.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private void setSubreddit(final Submission submission, SubmissionViewHolder vh) {
+    private void setSubreddit(final Submission submission, SubmissionVH vh) {
         String text = "/r/" + submission.getSubredditName();
         SpannableStringBuilder ssb = new SpannableStringBuilder(text);
         CalligraphyTypefaceSpan typefaceSpan = new CalligraphyTypefaceSpan(
@@ -516,19 +382,53 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         vh.subreddit.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private void setBody(Submission submission, final SubmissionViewHolder vh) {
+    private void setBody(final Submission submission, final SubmissionVH vh) {
         if (submission.isSelfPost() && submission.getSelftext().length() > 0) {
             final Spanned spanned = Html.fromHtml(submission.getSelftextHtml());
+            /*
+            SpannableStringBuilder ssb = (SpannableStringBuilder) Utils.setUrlSpans(context, spanned, true);
+            MyClickableSpan clickableSpan = new MyClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    if (submission.isSelfPost()) {
+                        CommentsFragment fragment = new CommentsFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("id", submission.getId());
+                        fragment.setArguments(bundle);
+
+                        context.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, fragment)
+                                .addToBackStack(null).commit();
+                    }
+                    else {
+                        String url = submission.getUrl();
+                        Log.d("URL", url);
+                        Utils.launchIntent(context, submission.getDomain(), url);
+                    }
+                }
+            };
+            ssb.setSpan(clickableSpan, 0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            vh.body.setText(ssb);
+            */
+
             vh.body.setText(Utils.setUrlSpans(context, spanned, true));
-            vh.body.setMovementMethod(LinkMovementMethod.getInstance());
             vh.body.setVisibility(View.VISIBLE);
+            vh.body.setMovementMethod(LinkMovementMethod.getInstance());
+            vh.body.setOnTouchListener(new CustomLinkMovementMethod());
+            vh.divider.setVisibility(View.VISIBLE);
             vh.body.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    vh.body.setText(Utils.setUrlSpans(context, spanned, false));
+                public void onClick(View view) {
+                    CommentsFragment fragment = new CommentsFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("id", submission.getId());
+                    fragment.setArguments(bundle);
+
+                    context.getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .addToBackStack(null).commit();
                 }
             });
-            vh.divider.setVisibility(View.VISIBLE);
         }
         else {
             vh.body.setVisibility(View.GONE);
@@ -536,23 +436,26 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         }
     }
 
-    private void setThumbnail(final Submission submission, final SubmissionViewHolder vh) {
+    private void setThumbnail(final Submission submission, final SubmissionVH vh) {
         String url = submission.getUrl();
         OEmbed embed = submission.getOEmbedMedia();
-        String domain = submission.getDomain();
+        final String domain = submission.getDomain();
         final Uri uri;
 
         if (embed != null) {
-            url = embed.getThumbnail().getUrl().toExternalForm();
             Log.d("EMBED URL", url);
+            url = embed.getThumbnail().getUrl().toExternalForm();
         }
 
-        if (domain.contains("imgur") && !url.contains("gallery") && !url.contains(".gif")) {
+        if (domain.contains("imgur") && !url.contains("gallery") && !url.contains(".gif") && !url.contains("/a/")) {
             final String img = url;
-            Log.d("IMAGE URL", Utils.getImageUrl(url, 'l'));
+            Log.d("IMAGE URL", url + ":   " + Utils.getImageUrl(url, 'l') + " -> " + Utils.getImageUrl(context, url));
+            //uri = Uri.parse(Utils.getImageUrl(url, 'l'));
+            //uri = Uri.parse(Utils.getImageUrl(context, url));
             uri = Uri.parse(Utils.getImageUrl(url, 'l'));
             vh.thumbnail.setImageURI(uri);
             vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.thumbnail.setImageAlpha(255);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
             vh.btnPlay.setVisibility(View.GONE);
@@ -568,19 +471,59 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                 }
             });
         }
-        else if (url.contains("gallery")) {
-            vh.thumbnail.setVisibility(View.GONE);
+        else if (domain.contains("imgur") && (url.contains("gallery") || url.contains("/a/"))) {
+            Log.d("GALLERY URL", url);
+            vh.thumbnail.setVisibility(View.VISIBLE);
+            Uri nullUri = null;
+            vh.thumbnail.setImageURI(nullUri);
+            //vh.thumbnail.setImageAlpha(Constants.ALPHA);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
-            vh.type.setText("GALLERY");
-            vh.btnPlay.setVisibility(View.GONE);
+            vh.btnPlay.setImageResource(R.drawable.ic_gallery_48dp);
+            //vh.btnPlay.setVisibility(View.VISIBLE);
 
-            if (!pref.equals("2") && !pref.equals("3"))
-                vh.type.setVisibility(View.VISIBLE);
+            uri = Uri.parse(url);
+            List<String> segments = uri.getPathSegments();
+            Log.d("CONTAINS KEY", galleryData.containsKey(segments.get(segments.size() - 1))+"");
+            if (!galleryData.containsKey(segments.get(segments.size() - 1))) {
+                vh.thumbnail.setOnClickListener(null);
+                new GetGalleryDataAsync(vh).execute(segments.get(segments.size() - 1));
+            }
+            else {
+                final Data data = galleryData.get(segments.get(segments.size() - 1));
+
+                if (data.is_album && data.images != null && data.images.length > 0) {
+                    Log.d("Image count", data.images.length+"");
+                    String coverUrl = Utils.getImageUrl(data.images[0].link, 'l');
+                    Log.d("COVER URL", coverUrl);
+                    Uri coverUri = Uri.parse(coverUrl);
+                    vh.thumbnail.setImageURI(coverUri);
+                    vh.thumbnail.setImageAlpha(Constants.ALPHA);
+                    vh.btnPlay.setVisibility(View.VISIBLE);
+
+                    vh.thumbnail.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, GalleryActivity.class);
+                            i.putExtra("images", data.images);
+                            context.startActivity(i);
+                        }
+                    });
+                }
+                else {
+                    String coverUrl = Utils.getImageUrl(data.link, 'l');
+                    Log.d("COVER URL", coverUrl);
+                    Uri coverUri = Uri.parse(coverUrl);
+                    vh.thumbnail.setImageURI(coverUri);
+                    vh.thumbnail.setOnClickListener(null);
+                    vh.thumbnail.setImageAlpha(255);
+                    vh.btnPlay.setVisibility(View.GONE);
+                }
+            }
         }
         else if (url.contains(".gif") && !url.contains(".gifv")) {
             final String img = url;
-            Log.d("GALLERY URL", url);
+            Log.d("GIF URL", url);
             uri = Uri.parse(url);
 
             DraweeController controller = Fresco.newDraweeControllerBuilder()
@@ -590,10 +533,13 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
 
             vh.thumbnail.setController(controller);
             vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.thumbnail.setImageAlpha(255);
+            vh.thumbnail.setOnClickListener(null);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
             vh.btnPlay.setVisibility(View.GONE);
 
+            /*
             vh.thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -605,19 +551,17 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                     context.startActivity(i);
                 }
             });
+            */
         }
         else if (url.contains(".gifv")) {
             /*
             vh.thumbnail.setVisibility(View.GONE);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
-            vh.type.setText("GIF");
-            if (!pref.equals("2") && !pref.equals("3"))
-                vh.type.setVisibility(View.VISIBLE);
-                */
+            */
 
             final String videoUrl = url;
-            final String img = Utils.getImageUrl(url.replaceAll(".gifv", ""), 'm');
+            final String img = Utils.getImageUrl(url.replaceAll(".gifv", ""), 'l');
 
             Log.d("THUMBNAIL URL", img + " (" + submission.getTitle() + ")");
             Log.d("GIFV URL", url);
@@ -625,32 +569,50 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
 
             vh.thumbnail.setImageURI(uri);
             vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.thumbnail.setImageAlpha(Constants.ALPHA);
             vh.lySmallThumb.setVisibility(View.GONE);
             vh.divider.setVisibility(View.GONE);
+            vh.btnPlay.setImageResource(R.drawable.ic_play_circle_outline_48dp);
             vh.btnPlay.setVisibility(View.VISIBLE);
 
             vh.thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("IMG", img);
-                    //Intent i = new Intent(context, PostVideoActivity.class);
-                    Intent i = new Intent();
                     String video = videoUrl.replace("gifv", "mp4");
-                    i.setDataAndType(Uri.parse(video), "video/*");
-                    //i.putExtra("url", img);
-                    context.startActivity(i);
+                    Intent i;
+
+                    try {
+                        i = new Intent();
+                        i.setDataAndType(Uri.parse(video), "video/*");
+                        context.startActivity(i);
+                    } catch (ActivityNotFoundException e) {
+                        i = new Intent(context, PostVideoActivity.class);
+                        i.putExtra("url", video);
+                    }
                 }
             });
         }
         else if (embed != null) {
-            Log.d("EMBED URL", url);
-            vh.thumbnail.setVisibility(View.GONE);
+            Log.d("EMBED PROVIDER", embed.getProviderName()+"");
+            Log.d("EMBED THUMBNAIL", url);
+            vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.thumbnail.setImageAlpha(255);
+            //vh.thumbnail.setVisibility(View.GONE);
             //vh.divider.setVisibility(View.VISIBLE);
             //vh.lySmallThumb.setVisibility(View.VISIBLE);
             uri = Uri.parse(url);
+            vh.thumbnail.setImageURI(uri);
             //vh.thumbnailSmall.setImageURI(uri);
             vh.url.setText(submission.getUrl());
             vh.btnPlay.setVisibility(View.GONE);
+
+            final String embedUrl = submission.getUrl();
+            vh.thumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Utils.launchIntent(context, domain, embedUrl);
+                }
+            });
 
             vh.lySmallThumb.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -673,9 +635,30 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                             public void onClick(View v) {
                                 String url = submission.getUrl();
                                 Log.d("URL", url);
-                                launchIntent(submission.getDomain(), url);
+                                Utils.launchIntent(context, submission.getDomain(), url);
                             }
                         });
+                }
+            });
+        }
+        else if (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")) {
+            final String img = url;
+            Log.d("IMAGE URL", img);
+            uri = Uri.parse(img);
+            vh.thumbnail.setImageURI(uri);
+            vh.thumbnail.setVisibility(View.VISIBLE);
+            vh.thumbnail.setImageAlpha(255);
+            vh.btnPlay.setVisibility(View.GONE);
+            vh.lySmallThumb.setVisibility(View.GONE);
+            vh.divider.setVisibility(View.GONE);
+
+            vh.thumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("IMG", img);
+                    Intent i = new Intent(context, PostImageActivity.class);
+                    i.putExtra("url", img);
+                    context.startActivity(i);
                 }
             });
         }
@@ -689,16 +672,6 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         }
     }
 
-    private void setGif(String url, SubmissionViewHolder vh) {
-        if (url.contains(".gif") || url.contains(".gifv")) {
-            vh.type.setText("GIF");
-            if (!pref.equals("2") && !pref.equals("3"))
-                vh.type.setVisibility(View.VISIBLE);
-        }
-        else
-            vh.type.setVisibility(View.GONE);
-    }
-
     private String getImageUrl(String domain, String url) {
         Log.d("IMG URL", url);
         if (url.endsWith(".jpg") || url.endsWith(".png"))
@@ -706,131 +679,129 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
         return url + ".jpg";
     }
 
-    private void launchIntent(String domain, String url) {
-        int j;
-        Intent i;
-        if (domain.contains("youtube.com")) {
-            try {
-                int index = url.indexOf("?v=");
-                for (j = index + 3; j < url.length(); j++) {
-                    char c = url.charAt(j);
-                    if (!Character.isLetterOrDigit(c) && c != '_' && c != '-')
-                        break;
-                }
-                String videoId = url.substring(index + 3, j);
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
-                context.startActivity(i);
-            } catch (ActivityNotFoundException e) {
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                context.startActivity(i);
-            }
-        }
-        else if (domain.contains("youtu.be")) {
-            try {
-                int index = url.indexOf("youtu.be/");
-                for (j = index + "youtu.be/".length(); j < url.length(); j++) {
-                    char c = url.charAt(j);
-                    if (!Character.isLetterOrDigit(c) && c != '_' && c != '-')
-                        break;
-                }
-                String videoId = url.substring(index + "youtu.be/".length(), j);
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
-                context.startActivity(i);
-            } catch (ActivityNotFoundException e) {
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                context.startActivity(i);
-            }
-        }
-        else {
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-            builder.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
-            builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-                    context.getResources(), R.drawable.ic_action_back));
-            CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.launchUrl(context, Uri.parse(url));
-        }
+    private void sharePost(Submission submission) {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.putExtra(Intent.EXTRA_TEXT, submission.getTitle() + " " + submission.getUrl());
+        i.setType("text/plain");
+        context.startActivity(i);
     }
 
     private int getVote(Submission submission) {
-        VoteDirection voteDir;
-        if (!submission.getChangedVote())
-            voteDir = submission.getVote();
-        else
-            voteDir = submission.getVote2();
-        return voteDir.getValue();
+        return submission.getVote().getValue();
     }
 
-    private class VoteTask extends AsyncTask<Void, Void, Boolean> {
+    private void setVote(final Submission submission, final SubmissionVH vh) {
+        final int vote = getVote(submission);
 
-        private Submission submission;
-        private VoteDirection vote;
-        private ImageView image1;
-        private ImageView image2;
+        if (vote == VoteDirection.UPVOTE.getValue()) {
+            vh.up.setImageResource(R.drawable.ic_arrow_upward_yellow_24dp);
+            vh.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
+        }
+        else if (vote == VoteDirection.DOWNVOTE.getValue()) {
+            vh.down.setImageResource(R.drawable.ic_arrow_downward_yellow_24dp);
+            vh.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+        }
+        else {
+            vh.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+            vh.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
+        }
 
-        public VoteTask(Submission submission, VoteDirection vote, ImageView image1, ImageView image2) {
+        vh.up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                App app = (App) context.getApplication();
+
+                if (app.getClient().getAuthenticationMethod().isUserless())
+                    Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
+
+                else {
+                    if (vote == VoteDirection.NO_VOTE.getValue() || vote == VoteDirection.DOWNVOTE.getValue())
+                        new VoteAsync(submission, vh).execute(VoteDirection.UPVOTE);
+                    else
+                        new VoteAsync(submission, vh).execute(VoteDirection.NO_VOTE);
+                }
+            }
+        });
+        vh.down.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                App app = (App) context.getApplication();
+
+                if (app.getClient().getAuthenticationMethod().isUserless())
+                    Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
+
+                else {
+                    if (vote == VoteDirection.NO_VOTE.getValue() || vote == VoteDirection.UPVOTE.getValue())
+                        new VoteAsync(submission, vh).execute(VoteDirection.DOWNVOTE);
+                    else
+                        new VoteAsync(submission, vh).execute(VoteDirection.NO_VOTE);
+                }
+            }
+        });
+    }
+
+    class VoteAsync extends AsyncTask<VoteDirection, Void, Submission> {
+
+        Submission submission;
+        SubmissionVH vh;
+        VoteDirection vote;
+
+        public VoteAsync(Submission submission, SubmissionVH vh) {
             this.submission = submission;
-            this.vote = vote;
-            this.image1 = image1;
-            this.image2 = image2;
+            this.vh = vh;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+        protected Submission doInBackground(VoteDirection... params) {
+            vote = params[0];
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
+
             try {
-                manager.vote(submission, vote);
-                return true;
+                manager.vote(submission, params[0]);
+                return app.getClient().getSubmission(submission.getId());
             } catch (ApiException e) {
                 e.printStackTrace();
-                return false;
+                return null;
             }
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
-            if (result) {
+        protected void onPostExecute(Submission submission) {
+            super.onPostExecute(submission);
+
+            if (submission != null) {
                 int value = vote.getValue();
                 Log.d("debug", "VOTED: " + value);
-                if (value == VoteDirection.NO_VOTE.getValue()) {
-                    image1.setImageResource(R.drawable.up_24dp);
-                    image2.setImageResource(R.drawable.down_24dp);
-                }
+
                 if (value == VoteDirection.UPVOTE.getValue()) {
-                    image1.setImageResource(R.drawable.up2);
-                    image2.setImageResource(R.drawable.down_24dp);
+                    vh.up.setImageResource(R.drawable.ic_arrow_upward_yellow_24dp);
+                    vh.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
+                }
+                else if (value == VoteDirection.DOWNVOTE.getValue()) {
+                    vh.down.setImageResource(R.drawable.ic_arrow_downward_yellow_24dp);
+                    vh.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
                 }
                 else {
-                    image1.setImageResource(R.drawable.down2);
-                    image2.setImageResource(R.drawable.up_24dp);
+                    vh.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+                    vh.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
                 }
-                final int index = getPosition(submission);
-                Log.d("debug", "INDEX: " + index);
-                //Submission aux = submission;
-                //remove(submission);
-                //notifyItemRemoved(index);
-                //notifyDataSetChanged();
-                //notifyDataSetChanged();
-                //notifyItemRemoved(index);
-                submission.setChangedVote(true);
-                submission.setVote(vote);
-                //add(index, aux);
-                notifyDataSetChanged();
-                //notifyItemInserted(index);
-                //updateAdapter(index);
+
+                set(vh.getAdapterPosition(), submission);
+
                 Toast.makeText(context, "Voted on post successfully", Toast.LENGTH_SHORT).show();
             }
             else
-                Toast.makeText(context, "Something went wrong. Try again later", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Something went wrong. Try again", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private class SaveSubmissionTask extends AsyncTask<Void, Void, Boolean> {
+    /*
+    class SaveSubmissionAsync extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             if (submission.isSaved())
                 try {
@@ -859,12 +830,14 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
                 Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
         }
     }
+    */
 
-    private class GiveGoldTask extends AsyncTask<Void, Void, Boolean> {
+    /*
+    class GiveGoldAsync extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             try {
                 manager.giveGold(submission);
@@ -879,6 +852,49 @@ public class SubmissionAdapter extends RecyclerView.Adapter<SubmissionViewHolder
             super.onPostExecute(result);
             if (result) {
 
+            }
+            else {
+
+            }
+        }
+    }
+    */
+
+    class GetGalleryDataAsync extends AsyncTask<String, Void, Data> {
+
+        String id;
+        RecyclerView.ViewHolder vh;
+
+        public GetGalleryDataAsync(RecyclerView.ViewHolder vh) {
+            this.vh  = vh;
+        }
+
+        @Override
+        protected Data doInBackground(String... strings) {
+            id = strings[0];
+            return Utils.getGalleryData(id);
+        }
+
+        @Override
+        protected void onPostExecute(Data data) {
+            super.onPostExecute(data);
+            if (data != null) {
+                Log.d("Debug", "data NOT NULL");
+                galleryData.put(id, data);
+
+                if (data.images != null) {
+                    ImgurImage[] images = data.images;
+                    String[] list = new String[images.length];
+                    for (int i = 0; i < list.length; i++) list[0] = images[i].link;
+                    Uri uri = Uri.parse(images[0].link);
+
+                    if (vh instanceof SubmissionVH)
+                        ((SubmissionVH) vh).thumbnail.setImageURI(uri);
+                    else if (vh instanceof CommentVH)
+                        ((CommentVH) vh).thumbnail.setImageURI(uri);
+
+                    notifyItemChanged(vh.getAdapterPosition());
+                }
             }
             else {
 

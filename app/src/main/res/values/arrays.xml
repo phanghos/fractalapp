@@ -34,8 +34,8 @@
 
     <string-array name="pref_displayStyle_entries">
         <item>Big Card</item>
+        <item>Full Width Card</item>
         <item>Small Card</item>
-        <item>Mini Card</item>
         <item>List</item>
     </string-array>
 

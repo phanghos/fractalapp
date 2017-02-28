@@ -22,7 +22,6 @@ public class PostVideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_post_video);
 
         String url = getIntent().getStringExtra("url");
-        url = url.replaceAll("gifv", "mp4");
         Log.d("URL", url);
 
         /*

@@ -1,5 +1,6 @@
 package org.taitascioredev.adapters;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,12 +18,15 @@ import android.widget.Toast;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Message;
 
+import org.taitascioredev.fractal.App;
+import org.taitascioredev.fractal.CustomLinkMovementMethod;
 import org.taitascioredev.fractal.FormattedLink;
 import org.taitascioredev.fractal.MessageContentFragment;
-import org.taitascioredev.fractal.MyApp;
 import org.taitascioredev.fractal.MyClickableSpan;
 import org.taitascioredev.fractal.R;
 import org.taitascioredev.fractal.SubredditPageFragment;
+
+import java.util.List;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyTypefaceSpan;
 import uk.co.chrisjenx.calligraphy.TypefaceUtils;
@@ -32,8 +36,8 @@ import uk.co.chrisjenx.calligraphy.TypefaceUtils;
  */
 public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> {
 
-    private final AppCompatActivity context;
-    private final Listing<Message> objects;
+    AppCompatActivity context;
+    List<Message> objects;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -43,11 +47,11 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
         public ViewHolder(View v) {
             super(v);
             author = (TextView) v.findViewById(R.id.tv_author);
-            subject = (TextView) v.findViewById(R.id.text_subject);
+            subject = (TextView) v.findViewById(R.id.tv_subject);
         }
     }
 
-    public InboxAdapter(AppCompatActivity context, Listing<Message> objects) {
+    public InboxAdapter(AppCompatActivity context, List<Message> objects) {
         this.context = context;
         this.objects = objects;
     }
@@ -60,7 +64,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        final Message msg = objects.get(position);
+        final Message msg = get(position);
         holder.author.setText(msg.getAuthor());
         //holder.subject.setText(msg.getSubject());
         String subjectStr = msg.getSubject();
@@ -73,10 +77,10 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
             MyClickableSpan clickSpan = new MyClickableSpan(ContextCompat.getColor(context, R.color.colorPrimary)) {
                 @Override
                 public void onClick(View widget) {
-                    Log.d("debug", link.getText());
+                    Log.d("Link", link.getText());
+
                     switch (link.getType()) {
                         case FormattedLink.TYPE_SUBREDDIT:
-                            context.onBackPressed(); // hack
                             SubredditPageFragment fragment = new SubredditPageFragment();
                             Bundle bundle = new Bundle();
                             bundle.putString("subreddit_url", link.getText().substring(3));
@@ -96,11 +100,12 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
         }
         holder.subject.setText(ssb, TextView.BufferType.SPANNABLE);
         holder.subject.setMovementMethod(LinkMovementMethod.getInstance());
+        holder.subject.setOnTouchListener(new CustomLinkMovementMethod());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 app.setMessage(msg);
                 MessageContentFragment fragment = new MessageContentFragment();
 
@@ -116,7 +121,11 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
         return objects.size();
     }
 
-    public Listing<Message> getList() {
+    public Message get(int pos) {
+        return objects.get(pos);
+    }
+
+    public List<Message> getList() {
         return objects;
     }
 
@@ -127,7 +136,7 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
 
     public void add(Message msg) {
         objects.add(msg);
-        notifyItemInserted(getItemCount() - 1);
+        notifyItemInserted(getItemCount());
     }
 
     public boolean contains(Object object) { return objects.contains(object); }

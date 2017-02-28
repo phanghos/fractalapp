@@ -1,105 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/comment_layout"
+<com.balysv.materialripple.MaterialRippleLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ripple"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#EDE7E7">
+    app:mrl_rippleColor="@color/colorRipple"
+    app:mrl_rippleBackground="#FFF">
 
-    <LinearLayout
-        android:id="@+id/linear_layout"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#fff">
+        android:layout_height="wrap_content">
 
-        <View
-            android:id="@+id/indentation_line"
-            android:layout_width="5dp"
-            android:layout_height="match_parent"
-            android:background="@color/colorPrimaryDark" />
-
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/text_comment_author"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="3dp"
-                android:textSize="13sp"
-                android:textColor="@color/colorPrimaryText"
-                fontPath="fonts/OpenSans-Semibold.ttf"/>
+            <View
+                android:id="@+id/indentation_line"
+                android:layout_width="5dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimaryDark" />
 
-            <TextView
-                android:id="@+id/text_comment_body"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/text_comment_author"
-                android:layout_alignLeft="@+id/text_comment_author"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="10dp"
-                android:textSize="12sp"
-                android:textColor="@color/colorSecondaryText"
-                fontPath="fonts/OpenSans-Light.ttf"/>
-
-            <LinearLayout
-                android:id="@+id/layout_actions"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_below="@+id/text_comment_body"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone">
+                android:layout_height="match_parent">
 
-                <ImageView
-                    android:id="@+id/iv_down"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_down_grey"/>
+                <TextView
+                    android:id="@+id/tv_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="3dp"
+                    android:textColor="@color/colorPrimaryText"
+                    android:textSize="13sp"
+                    fontPath="fonts/OpenSans-Semibold.ttf" />
 
-                <ImageView
-                    android:id="@+id/iv_up"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_up_grey"/>
+                <TextView
+                    android:id="@+id/tv_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_author"
+                    android:layout_alignLeft="@+id/tv_author"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorSecondaryText"
+                    android:textSize="12sp"
+                    fontPath="fonts/OpenSans-Light.ttf" />
 
-                <ImageView
-                    android:id="@+id/iv_comment"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_comment_grey"/>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_body">
 
-                <ImageView
-                    android:id="@+id/iv_share"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_share_grey"/>
+                    <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/iv_thumbnail"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/thumbnail_height"
+                        android:layout_marginTop="16dp"
+                        android:visibility="gone"
+                        fresco:fadeDuration="300"
+                        fresco:actualImageScaleType="focusCrop"
+                        fresco:backgroundImage="@color/colorListBackground"
+                        fresco:roundAsCircle="false"
+                        fresco:roundedCornerRadius="0dp"
+                        fresco:roundTopLeft="true"
+                        fresco:roundTopRight="false"
+                        fresco:roundBottomLeft="false"
+                        fresco:roundBottomRight="true"
+                        fresco:roundingBorderWidth="0dp" />
 
-                <ImageView
-                    android:id="@+id/iv_save"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_like_grey"/>
+                    <ImageView
+                        android:id="@+id/btn_play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_play_circle_outline_48dp"
+                        android:visibility="gone" />
 
-            </LinearLayout>
+                </FrameLayout>
 
-        </RelativeLayout>
+            </RelativeLayout>
 
-    </LinearLayout>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/colorDivider" />
 
-</RelativeLayout>
+    </RelativeLayout>
+
+</com.balysv.materialripple.MaterialRippleLayout>

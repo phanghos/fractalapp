@@ -3,12 +3,12 @@ package org.taitascioredev.fractal;
 import net.dean.jraw.ApiException;
 import net.dean.jraw.EndpointImplementation;
 import net.dean.jraw.Endpoints;
-import net.dean.jraw.JrawUtils;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.RestResponse;
 import net.dean.jraw.managers.InboxManager;
 import net.dean.jraw.models.Captcha;
+import net.dean.jraw.util.JrawUtils;
 
 import java.util.Map;
 

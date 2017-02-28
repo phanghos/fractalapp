@@ -5,6 +5,7 @@ package org.taitascioredev.fractal;
  */
 public class Data {
 
-    public int images_count;
-    public Image[] images;
+    public String link;
+    public boolean is_album;
+    public ImgurImage[] images;
 }

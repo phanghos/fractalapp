@@ -8,7 +8,7 @@ public class Constants {
     public static final String CLIENT_ID = "ux1guS3Rl_AmMQ";
     public static final String REDIRECT_URI = "https://www.goodreads.com/";
     public static final String PLATFORM = "android";
-    public static final String PACKAGE = "com.android.test.fractal";
+    public static final String PACKAGE = "org.taitasciore.fractal";
     public static final String VERSION = "0.1";
     public static final String USERNAME = "taitasciore";
     public static final String SHARED_PREF_NAME = "data";
@@ -21,6 +21,8 @@ public class Constants {
     public static final int LOGIN_REQUEST = 1;
     public static final int LOGIN_USERLESS = 2;
     public static final int LOGIN_OAUTH = 3;
+
+    public static final int ALPHA = 125;
 
     public static final String[] INDENTATION_COLORS = {
             "#F44336", "#E91E63", "#9C27B0",

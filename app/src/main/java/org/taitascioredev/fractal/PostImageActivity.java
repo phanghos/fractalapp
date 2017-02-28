@@ -119,8 +119,7 @@ public class PostImageActivity extends AppCompatActivity implements SurfaceHolde
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        for (File f : tempFiles)
-            f.delete();
+        for (File f : tempFiles) f.delete();
     }
 
     @Override
@@ -160,7 +159,7 @@ public class PostImageActivity extends AppCompatActivity implements SurfaceHolde
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "IMG_" + timeStamp + ".jpg";
         File file = new File (dir, imageFileName);
-        if (file.exists ()) {
+        if (file.exists()) {
             Log.d("debug", "IMAGE EXISTS");
             Toast.makeText(this, "Image already on device", Toast.LENGTH_SHORT).show();
             return null;
@@ -187,28 +186,12 @@ public class PostImageActivity extends AppCompatActivity implements SurfaceHolde
         File f = new File(path);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
+        sendBroadcast(mediaScanIntent);
     }
 
-    private void loadImageFromStorage(String path)
-    {
-
-        try {
-            File f=new File(path, "profile.jpg");
-            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-            ImageView img=(ImageView)findViewById(R.id.image);
-            img.setImageBitmap(b);
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
-    private String getImageName(String url) {
-        int index = url.lastIndexOf("/");
-        return url.substring(index + 1);
+    private String getImageName(String path) {
+        int index = path.lastIndexOf("/");
+        return path.substring(index + 1);
     }
 
     @Override

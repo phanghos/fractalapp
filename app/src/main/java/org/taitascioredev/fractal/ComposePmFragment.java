@@ -38,7 +38,7 @@ import java.io.IOException;
  */
 public class ComposePmFragment extends Fragment implements View.OnClickListener {
 
-    private MyApp app;
+    private App app;
 
     private boolean needsCaptcha;
     private boolean determinedCaptcha;
@@ -71,7 +71,7 @@ public class ComposePmFragment extends Fragment implements View.OnClickListener 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = (AppCompatActivity) getActivity();
-        app = (MyApp) context.getApplication();
+        app = (App) context.getApplication();
 
         user = (EditText) context.findViewById(R.id.et_username);
         subject = (EditText) context.findViewById(R.id.edit_text_subject);
@@ -129,6 +129,7 @@ public class ComposePmFragment extends Fragment implements View.OnClickListener 
             case R.id.image_link:
                 showAddLinkDialog();
                 break;
+            /*
             case R.id.button_preview:
                 showPreviewDialog();
                 break;
@@ -140,6 +141,7 @@ public class ComposePmFragment extends Fragment implements View.OnClickListener 
                 else
                     new SendPmTask().execute();
                 break;
+                */
         }
     }
 
@@ -350,7 +352,8 @@ public class ComposePmFragment extends Fragment implements View.OnClickListener 
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            return app.getClient().needsCaptcha();
+            //return app.getClient().needsCaptcha();
+            return false;
         }
 
         @Override
@@ -373,12 +376,15 @@ public class ComposePmFragment extends Fragment implements View.OnClickListener 
 
         @Override
         protected Captcha doInBackground(Void... params) {
+            /*
             try {
                 return app.getClient().getNewCaptcha();
             } catch (ApiException e) {
                 e.printStackTrace();
                 return null;
             }
+            */
+            return null;
         }
 
         @Override

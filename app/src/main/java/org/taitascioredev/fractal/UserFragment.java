@@ -13,7 +13,6 @@ import android.widget.Spinner;
 
 import com.pnikosis.materialishprogress.ProgressWheel;
 
-import net.dean.jraw.Endpoints;
 import net.dean.jraw.models.Account;
 import net.dean.jraw.models.Contribution;
 import net.dean.jraw.models.Listing;
@@ -25,7 +24,7 @@ import net.dean.jraw.paginators.UserContributionPaginator;
  */
 public class UserFragment extends Fragment {
 
-    private MyApp app;
+    private App app;
 
     private AppCompatActivity context;
 
@@ -40,7 +39,7 @@ public class UserFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         context = (AppCompatActivity) getActivity();
-        app = (MyApp) context.getApplication();
+        app = (App) context.getApplication();
         Bundle bundle = getArguments();
         String username = bundle.getString("subreddit_url");
         context.getSupportActionBar().setTitle(username);

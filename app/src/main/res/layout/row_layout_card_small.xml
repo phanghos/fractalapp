@@ -10,251 +10,243 @@
     card_view:cardElevation="2dp"
     card_view:cardUseCompatPadding="true">
 
-    <LinearLayout
-        android:id="@+id/layout_title"
+    <com.balysv.materialripple.MaterialRippleLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/ripple"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="#fff">
+        app:mrl_rippleColor="@color/colorRipple"
+        app:mrl_rippleBackground="#FFF">
 
         <LinearLayout
+            android:id="@+id/layout_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <FrameLayout
-                    android:id="@+id/layout_thumbnail"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:id="@+id/layout_thumbnail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginLeft="8dp">
+
+                        <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
+                            android:id="@+id/iv_thumbnail"
+                            android:layout_width="@dimen/thumbnail_width_small"
+                            android:layout_height="@dimen/thumbnail_height_small"
+                            fresco:fadeDuration="300"
+                            fresco:actualImageScaleType="focusCrop"
+                            fresco:backgroundImage="@color/colorListBackground"
+                            fresco:roundAsCircle="false"
+                            fresco:roundedCornerRadius="5dp"
+                            fresco:roundTopLeft="true"
+                            fresco:roundTopRight="true"
+                            fresco:roundBottomLeft="true"
+                            fresco:roundBottomRight="true"
+                            fresco:roundingBorderWidth="0dp" />
+
+                        <ImageView
+                            android:id="@+id/btn_play"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_play_circle_outline_48dp" />
+
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tv_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toLeftOf="@+id/layout_thumbnail"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/colorPrimaryText"
+                        android:textSize="@dimen/title_text_size" />
+
+                    <TextView
+                        android:id="@+id/tv_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_title"
+                        android:layout_alignLeft="@+id/tv_title"
+                        android:layout_marginBottom="5dp"
+                        android:textColor="@color/colorFab"
+                        android:textSize="17sp"
+                        android:visibility="gone"
+                        fontPath="fonts/OpenSans-Bold.ttf" />
+
+                    <TextView
+                        android:id="@+id/tv_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_type"
+                        android:layout_alignLeft="@+id/tv_type"
+                        android:layout_marginBottom="2dp"
+                        android:textColor="@color/colorSecondaryText"
+                        android:textSize="@dimen/date_text_size" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/tv_date"
+                        android:layout_alignLeft="@+id/tv_date">
+
+                        <TextView
+                            android:id="@+id/tv_author"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorSecondaryText"
+                            android:textSize="@dimen/author_text_size"
+                            fontPath="fonts/OpenSans-Semibold.ttf" />
+
+                        <TextView
+                            android:id="@+id/tv_subreddit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorSecondaryText"
+                            android:textSize="@dimen/author_text_size"
+                            fontPath="fonts/OpenSans-Semibold.ttf" />
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/colorDivider"/>
+
+                <RelativeLayout
+                    android:id="@+id/layout_small_thumbnail"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginLeft="8dp">
+                    android:visibility="gone">
 
                     <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
-                        android:id="@+id/image_thumbnail"
-                        android:layout_width="@dimen/thumbnail_width_small"
-                        android:layout_height="@dimen/thumbnail_height_small"
+                        android:id="@+id/thumbnail"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginRight="8dp"
                         fresco:fadeDuration="300"
                         fresco:actualImageScaleType="focusCrop"
                         fresco:backgroundImage="@color/colorListBackground"
-                        fresco:roundAsCircle="false"
-                        fresco:roundedCornerRadius="5dp"
+                        fresco:roundAsCircle="true"
+                        fresco:roundedCornerRadius="1dp"
                         fresco:roundTopLeft="true"
-                        fresco:roundTopRight="true"
-                        fresco:roundBottomLeft="true"
+                        fresco:roundTopRight="false"
+                        fresco:roundBottomLeft="false"
                         fresco:roundBottomRight="true"
                         fresco:roundingBorderWidth="0dp"/>
 
-                    <ImageView
-                        android:id="@+id/btn_play"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_play_circle_outline_48dp"/>
+                    <TextView
+                        android:id="@+id/tv_url"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/thumbnail"
+                        android:layout_marginRight="16dp"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/colorSecondaryText"
+                        android:textSize="12sp"
+                        fontPath="fonts/OpenSans-Light.ttf"/>
 
-                </FrameLayout>
-
-                <TextView
-                    android:id="@+id/tv_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/layout_thumbnail"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginBottom="2dp"
-                    android:textColor="@color/colorPrimaryText"
-                    android:textSize="14sp"/>
+                </RelativeLayout>
 
                 <TextView
-                    android:id="@+id/tv_type"
+                    android:id="@+id/tv_body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/tv_title"
-                    android:layout_alignLeft="@+id/tv_title"
-                    android:layout_marginBottom="5dp"
-                    android:textColor="@color/colorFab"
-                    android:textSize="17sp"
-                    android:visibility="gone"
-                    fontPath="fonts/OpenSans-Bold.ttf"/>
-
-                <TextView
-                    android:id="@+id/tv_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/tv_type"
-                    android:layout_alignLeft="@+id/tv_type"
-                    android:layout_marginBottom="2dp"
+                    android:textSize="12sp"
                     android:textColor="@color/colorSecondaryText"
-                    android:textSize="12sp"/>
+                    fontPath="fonts/OpenSans-Light.ttf" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_below="@+id/tv_date"
-                    android:layout_alignLeft="@+id/tv_date">
+                    android:orientation="vertical"
+                    android:layout_weight="1">
 
                     <TextView
-                        android:id="@+id/tv_author"
+                        android:id="@+id/tv_score"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/colorSecondaryText"
-                        android:textSize="12sp"
-                        fontPath="fonts/OpenSans-Semibold.ttf"/>
+                        android:textSize="@dimen/score_text_size" />
 
                     <TextView
-                        android:id="@+id/tv_subreddit"
+                        android:id="@+id/tv_comments"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
                         android:textColor="@color/colorSecondaryText"
-                        android:textSize="12sp"
-                        fontPath="fonts/OpenSans-Semibold.ttf"/>
+                        android:textSize="@dimen/comment_count_text_size"
+                        fontPath="fonts/OpenSans-Light.ttf" />
 
                 </LinearLayout>
 
-            </RelativeLayout>
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="@color/colorDivider"/>
-
-            <RelativeLayout
-                android:id="@+id/layout_small_thumbnail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <com.facebook.drawee.view.SimpleDraweeView xmlns:fresco="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/thumbnail"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginRight="8dp"
-                    fresco:fadeDuration="300"
-                    fresco:actualImageScaleType="focusCrop"
-                    fresco:backgroundImage="@color/colorListBackground"
-                    fresco:roundAsCircle="true"
-                    fresco:roundedCornerRadius="1dp"
-                    fresco:roundTopLeft="true"
-                    fresco:roundTopRight="false"
-                    fresco:roundBottomLeft="false"
-                    fresco:roundBottomRight="true"
-                    fresco:roundingBorderWidth="0dp"/>
-
-                <TextView
-                    android:id="@+id/text_url"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/thumbnail"
-                    android:layout_marginRight="16dp"
-                    android:layout_centerVertical="true"
-                    android:textColor="@color/colorSecondaryText"
-                    android:textSize="12sp"
-                    fontPath="fonts/OpenSans-Light.ttf"/>
+                    android:orientation="horizontal"
+                    android:layout_weight="2"
+                    android:layout_gravity="center_vertical">
 
-            </RelativeLayout>
+                    <ImageView
+                        android:id="@+id/iv_down"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_arrow_downward_grey_24dp" />
 
-            <TextView
-                android:id="@+id/text_body"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/colorSecondaryText"
-                fontPath="fonts/OpenSans-Light.ttf" />
+                    <ImageView
+                        android:id="@+id/iv_up"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_arrow_upward_grey_24dp" />
 
-        </LinearLayout>
+                    <ImageView
+                        android:id="@+id/iv_share"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_share_grey_24dp" />
 
-        <LinearLayout
-            android:id="@+id/layout_actions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="#fff">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tv_score"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:textColor="@color/colorSecondaryText"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/tv_comments"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:textColor="@color/colorSecondaryText"
-                    android:textSize="12sp"
-                    fontPath="fonts/OpenSans-Light.ttf"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="2"
-                android:layout_gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/iv_down"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_down_grey"/>
-
-                <ImageView
-                    android:id="@+id/iv_up"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_up_grey"/>
-
-                <ImageView
-                    android:id="@+id/iv_comment"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_comment_grey"/>
-
-                <ImageView
-                    android:id="@+id/iv_share"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_share_grey"/>
-
-                <ImageView
-                    android:id="@+id/iv_save"
-                    android:layout_width="@dimen/icon_size"
-                    android:layout_height="@dimen/icon_size"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_like_grey"/>
+                </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </com.balysv.materialripple.MaterialRippleLayout>
 
 </android.support.v7.widget.CardView>

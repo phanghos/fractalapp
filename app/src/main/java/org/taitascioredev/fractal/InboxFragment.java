@@ -5,10 +5,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.pnikosis.materialishprogress.ProgressWheel;
@@ -28,60 +32,69 @@ import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Message;
 import net.dean.jraw.paginators.InboxPaginator;
 
-import org.lucasr.twowayview.ItemClickSupport;
-import org.lucasr.twowayview.ItemSelectionSupport;
-import org.lucasr.twowayview.widget.DividerItemDecoration;
-import org.lucasr.twowayview.widget.TwoWayView;
 import org.taitascioredev.adapters.CustomSpinnerAdapter;
 import org.taitascioredev.adapters.InboxAdapter;
+
+import java.util.ArrayList;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by roberto on 25/04/15.
  */
 public class InboxFragment extends Fragment {
 
-    private InboxPaginator paginator;
-    private Listing<Message> list;
-    private InboxAdapter adapter;
-    private MyApp app;
-    private ActionMode actionMode;
+    ArrayList<Message> list;
+    InboxPaginator paginator;
+    AppCompatActivity context;
+    App app;
+    ActionMode actionMode;
 
-    private TwoWayView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    @BindView(R.id.list) RecyclerView mRecyclerView;
+    InboxAdapter mAdapter;
+    RecyclerView.LayoutManager mLayoutManager;
 
-    private SwipyRefreshLayout refreshWidget;
-    private AppCompatActivity context;
-    private ProgressWheel wheel;
-    private TextView empty;
+    Toolbar toolbar;
+    NavigationView mNavView;
+    Spinner sp;
+
+    @BindView(R.id.swipyrefreshlayout) SwipyRefreshLayout mRefreshLayout;
+    @BindView(R.id.progress_wheel) ProgressWheel wheel;
+    @BindView(R.id.tv_empty) TextView empty;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_subreddits, container, false);
+        View v = inflater.inflate(R.layout.activity_subreddits, container, false);
+        ButterKnife.bind(this, v);
+        return v;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         context = (AppCompatActivity) getActivity();
-        app = (MyApp) context.getApplication();
-        context.getSupportActionBar().setTitle("Inbox");
-        context.getSupportActionBar().setDisplayShowTitleEnabled(true);
+        app = (App) context.getApplication();
+        //context.getSupportActionBar().setTitle("Inbox");
+        context.getSupportActionBar().setDisplayShowTitleEnabled(false);
         setHasOptionsMenu(true);
 
-        NavigationView navView = (NavigationView) context.findViewById(R.id.navigation_view);
-        navView.getMenu().findItem(R.id.inbox).setChecked(true);
+        toolbar = (Toolbar) context.findViewById(R.id.toolbar);
+        mNavView = (NavigationView) context.findViewById(R.id.navigation_view);
+        sp = (Spinner) context.findViewById(R.id.spinner);
 
-        Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
+        mNavView.getMenu().findItem(R.id.inbox).setChecked(true);
+
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecyclerView.scrollToPosition(0);
+                mRecyclerView.smoothScrollToPosition(0);
             }
         });
 
-        mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
-        final Drawable divider = getResources().getDrawable(R.drawable.divider_list);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        final Drawable divider = ContextCompat.getDrawable(getActivity(), R.drawable.divider_list);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
 
         /*
@@ -101,13 +114,14 @@ public class InboxFragment extends Fragment {
                     updateTitle(selectionSupport.getCheckedItemCount());
                     return;
                 }
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 Message msg = app.getMessages().get(position);
                 app.setMessage(msg);
                 MessageContentFragment fragment = new MessageContentFragment();
                 context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
             }
         });
+
         clickSupport.setOnItemLongClickListener(new ItemClickSupport.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(RecyclerView recyclerView, View view, int position, long l) {
@@ -146,11 +160,10 @@ public class InboxFragment extends Fragment {
         });
         */
 
-        Spinner spinner = (Spinner) context.findViewById(R.id.spinner);
-        spinner.setVisibility(View.VISIBLE);
+        sp.setVisibility(View.VISIBLE);
         CustomSpinnerAdapter spinnerAdapter = new CustomSpinnerAdapter(context, android.R.layout.simple_spinner_dropdown_item, context.getResources().getStringArray(R.array.inbox));
-        spinner.setAdapter(spinnerAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        sp.setAdapter(spinnerAdapter);
+        sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             boolean loaded = false;
 
             @Override
@@ -190,42 +203,38 @@ public class InboxFragment extends Fragment {
             }
         });
 
-        refreshWidget = (SwipyRefreshLayout) getView().findViewById(R.id.swipyrefreshlayout);
-        refreshWidget.setDirection(SwipyRefreshLayoutDirection.BOTTOM);
-        refreshWidget.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+        mRefreshLayout.setDirection(SwipyRefreshLayoutDirection.BOTTOM);
+        mRefreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
                 if (paginator != null) {
                     if (paginator.hasNext())
                         new GetMessagesTask().execute();
                     else {
-                        refreshWidget.setRefreshing(false);
+                        mRefreshLayout.setRefreshing(false);
                         Toast.makeText(context.getApplicationContext(), "No more messages to load", Toast.LENGTH_SHORT).show();
                     }
                 } else
-                    refreshWidget.setRefreshing(false);
+                    mRefreshLayout.setRefreshing(false);
             }
         });
-
-        wheel = (ProgressWheel) getView().findViewById(R.id.progress_wheel);
-        empty = (TextView) getView().findViewById(R.id.tv_empty);
 
         paginator = app.getInboxPaginator();
         if (app.getMessages() == null)
             new GetMessagesTask().execute();
         else {
-            spinner.setSelection(app.getInboxSorting());
-            adapter = new InboxAdapter(context, app.getMessages());
-            mRecyclerView.setAdapter(adapter);
+            sp.setSelection(app.getInboxSorting());
+            mAdapter = new InboxAdapter(context, app.getMessages());
+            mRecyclerView.setAdapter(mAdapter);
         }
     }
 
-    /*
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_messages, menu);
+        //inflater.inflate(R.menu.menu_messages, menu);
+        MenuItem item = menu.findItem(R.id.item_about);
+        if (item != null) item.setVisible(false);
     }
-    */
 
     /*
     @Override
@@ -260,52 +269,58 @@ public class InboxFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (adapter == null) {
-                ProgressWheel wheel = (ProgressWheel) getView().findViewById(R.id.progress_wheel);
-                wheel.setVisibility(View.VISIBLE);
-            }
+            if (mAdapter == null) wheel.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected Listing<Message> doInBackground(Void... params) {
-            paginator = app.getInboxPaginator();
+            if (paginator == null) paginator = new InboxPaginator(app.getClient(), "inbox");
 
-            if (paginator == null)
-                paginator = new InboxPaginator(app.getClient(), "inbox");
-            return paginator.next();
+            try {
+                return paginator.next();
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(Listing<Message> messages) {
             super.onPostExecute(messages);
-            refreshWidget.setRefreshing(false);
             wheel.setVisibility(View.GONE);
+            mRefreshLayout.setRefreshing(false);
 
             if (messages != null) {
-                if (adapter == null) {
-                    list = messages;
-                    adapter = new InboxAdapter(context, messages);
-                    mAdapter = adapter;
-                    mRecyclerView.setAdapter(adapter);
+                if (mAdapter == null) {
+                    Log.d("Adapter", "Null");
+                    list = new ArrayList<>();
+                    for (Message m : messages) list.add(m);
+                    mAdapter = new InboxAdapter(context, messages);
+                    mRecyclerView.setAdapter(mAdapter);
                 }
                 else {
-                    for (Message m : messages)
-                        adapter.add(m);
-                    list = adapter.getList();
+                    Log.d("Adapter", "Not null");
+                    for (Message m : messages) mAdapter.add(m);
                 }
 
                 app.setInboxPaginator(paginator);
                 app.setMessages(messages);
 
-                if (messages.size() > 0)
-                    empty.setVisibility(View.GONE);
-                else
-                    empty.setVisibility(View.VISIBLE);
+                if (messages.size() > 0) empty.setVisibility(View.GONE);
+                else                     empty.setVisibility(View.VISIBLE);
             }
+            else
+                Utils.showSnackbar(getActivity(), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new GetMessagesTask().execute();
+                    }
+                });
         }
     }
 
     private class SortMessagesTask extends AsyncTask<String, Void, Listing<Message>> {
+
+        String sort;
 
         @Override
         protected void onPreExecute() {
@@ -315,8 +330,14 @@ public class InboxFragment extends Fragment {
 
         @Override
         protected Listing<Message> doInBackground(String... params) {
-            paginator = new InboxPaginator(app.getClient(), params[0]);
-            return paginator.next(true);
+            sort = params[0];
+            paginator = new InboxPaginator(app.getClient(), sort);
+
+            try {
+                return paginator.next(true);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
@@ -325,20 +346,24 @@ public class InboxFragment extends Fragment {
             wheel.setVisibility(View.GONE);
 
             if (messages != null) {
-                list = messages;
-                adapter = new InboxAdapter(context, messages);
-                mAdapter = adapter;
-                mRecyclerView.setAdapter(adapter);
+                list = new ArrayList<>();
+                for (Message m : messages) list.add(m);
+                mAdapter = new InboxAdapter(context, messages);
+                mRecyclerView.setAdapter(mAdapter);
 
                 app.setInboxPaginator(paginator);
-                app.setMessages(adapter.getList());
+                app.setMessages(mAdapter.getList());
 
-                if (messages.size() > 0)
-                    empty.setVisibility(View.GONE);
-                else
-                    empty.setVisibility(View.VISIBLE);
-
+                if (messages.size() > 0) empty.setVisibility(View.GONE);
+                else                     empty.setVisibility(View.VISIBLE);
             }
+            else
+                Utils.showSnackbar(getActivity(), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SortMessagesTask().execute(sort);
+                    }
+                });
         }
     }
 }

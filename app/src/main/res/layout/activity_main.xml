@@ -10,12 +10,11 @@
     tools:context=".MainActivity">
 
     <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/main_content">
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
@@ -26,13 +25,13 @@
             app:backgroundTint="@color/colorAccent"
             app:fabSize="normal"
             app:elevation="6dp"
-            app:pressedTranslationZ="12dp"/>
+            app:pressedTranslationZ="12dp" />
 
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -44,13 +43,15 @@
                 android:layout_height="wrap_content"
                 android:minHeight="?android:attr/actionBarSize"
                 android:background="@color/colorPrimary"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:layout_scrollFlags="scroll|enterAlways">
 
                 <Spinner
                     android:id="@+id/spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"/>
+                    android:layout_marginLeft="8dp" />
 
             </android.support.v7.widget.Toolbar>
 
@@ -64,10 +65,10 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="#fff"
-        app:itemTextColor="@color/colorSecondaryText"
-        app:itemIconTint="@android:color/darker_gray"
-        app:itemBackground="@drawable/drawer_background_state"
         app:headerLayout="@layout/header"
-        app:menu="@menu/drawer" />
+        app:menu="@menu/drawer"
+        app:itemTextColor="@color/colorSecondaryText"
+        app:itemIconTint="@color/icon_state"
+        app:itemBackground="@drawable/drawer_background_state" />
 
 </android.support.v4.widget.DrawerLayout>

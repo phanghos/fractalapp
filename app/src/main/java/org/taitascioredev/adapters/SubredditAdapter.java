@@ -10,33 +10,57 @@ import android.widget.TextView;
 
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Subreddit;
+import net.dean.jraw.paginators.Paginator;
 
-import org.taitascioredev.fractal.MyApp;
+import org.taitascioredev.fractal.App;
 import org.taitascioredev.fractal.R;
 import org.taitascioredev.fractal.SubredditPageFragment;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by roberto on 26/05/15.
  */
 public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.ViewHolder> {
 
-    private final AppCompatActivity context;
-    private final Listing<Subreddit> objects;
+    AppCompatActivity context;
+    List<Subreddit> objects;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView name;
-        TextView url;
+        @BindView(R.id.tv_subreddit_name) TextView name;
+        @BindView(R.id.tv_subreddit_url) TextView url;
 
-        public ViewHolder(View v) {
-            super(v);
+        public ViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
 
-            name   = (TextView) v.findViewById(R.id.text_subreddit_name);
-            url    = (TextView) v.findViewById(R.id.text_subreddit_url);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Subreddit subreddit = get(getAdapterPosition());
+                    App app = (App) context.getApplication();
+
+                    app.setSubredditPaginator(null);
+                    app.setSubmissionsSubreddit(null);
+
+                    SubredditPageFragment fragment = new SubredditPageFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("subreddit_url", subreddit.getDisplayName());
+                    fragment.setArguments(bundle);
+
+                    context.getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .addToBackStack(null).commit();
+                }
+            });
         }
     }
 
-    public SubredditAdapter(AppCompatActivity context, Listing<Subreddit> objects) {
+    public SubredditAdapter(AppCompatActivity context, List<Subreddit> objects) {
         this.context = context;
         this.objects = objects;
     }
@@ -49,27 +73,9 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final Subreddit subreddit = objects.get(position);
+        final Subreddit subreddit = get(position);
         holder.name.setText(subreddit.getTitle());
         holder.url.setText(subreddit.getDisplayName());
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MyApp app = (MyApp) context.getApplication();
-                app.setSubredditPaginator(null);
-                app.setSubmissionsSubreddit(null);
-
-                SubredditPageFragment fragment = new SubredditPageFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("subreddit_url", subreddit.getDisplayName());
-                fragment.setArguments(bundle);
-
-                context.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null).commit();
-            }
-        });
     }
 
     @Override
@@ -77,21 +83,23 @@ public class SubredditAdapter extends RecyclerView.Adapter<SubredditAdapter.View
         return objects.size();
     }
 
-    public Listing<Subreddit> getList() {
+    public Subreddit get(int pos) {
+        return objects.get(pos);
+    }
+
+    public List<Subreddit> getList() {
         return objects;
     }
 
-    public void add(int index, Subreddit subreddit) {
-        objects.add(index, subreddit);
-        notifyItemInserted(index);
+    public void add(int pos, Subreddit subreddit) {
+        objects.add(pos, subreddit);
+        notifyItemInserted(pos);
     }
 
     public void add(Subreddit subreddit) {
         objects.add(subreddit);
-        notifyItemInserted(getItemCount() - 1);
+        notifyItemInserted(getItemCount());
     }
 
     public boolean contains(Object object) { return objects.contains(object); }
-
-    public Subreddit getItem(int position) { return objects.get(position); }
 }

@@ -1,24 +1,18 @@
 package org.taitascioredev.fractal;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,58 +20,71 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.dgreenhalgh.android.simpleitemdecoration.linear.DividerItemDecoration;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
-import net.dean.jraw.ApiException;
-import net.dean.jraw.managers.AccountManager;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.SubredditPaginator;
 
-import org.lucasr.twowayview.widget.DividerItemDecoration;
-import org.lucasr.twowayview.widget.TwoWayView;
 import org.taitascioredev.adapters.CustomSpinnerAdapter;
 import org.taitascioredev.adapters.SubmissionAdapter;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 
 /**
  * Created by roberto on 12/05/15.
  */
 public class MainFragment extends Fragment {
 
-    private int sorting;
+    int sorting;
+    ArrayList<Submission> list;
+    SubredditPaginator paginator;
+    AppCompatActivity context;
+    App app;
 
-    private SubredditPaginator paginator;
-    private SubmissionAdapter adapter;
-    private Submission submission;
-    private MyApp app;
+    @BindView(R.id.list) RecyclerView mRecyclerView;
+    SubmissionAdapter mAdapter;
+    RecyclerView.LayoutManager mLayoutMngr;
 
-    private SwipyRefreshLayout refreshWidget;
-    private TwoWayView mRecyclerView;
-    private AppCompatActivity context;
-    private ProgressWheel wheel;
-    private TextView empty;
+    Toolbar toolbar;
+    NavigationView mNavView;
+    Spinner sp;
+
+    @BindView(R.id.swipyrefreshlayout) SwipyRefreshLayout mRefreshLayout;
+    @BindView(R.id.progress_wheel) ProgressWheel wheel;
+    @BindView(R.id.tv_empty) TextView empty;
+
+    MaterialDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View v = inflater.inflate(R.layout.fragment_main, container, false);
+        ButterKnife.bind(this, v);
+        return v;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         context = (AppCompatActivity) getActivity();
-        app = (MyApp) context.getApplication();
-        //context.getSupportActionBar().setTitle("Fractal");
+        app = (App) context.getApplication();
         context.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         setHasOptionsMenu(true);
 
-        Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
+        toolbar = (Toolbar) context.findViewById(R.id.toolbar);
+        mNavView = (NavigationView) context.findViewById(R.id.navigation_view);
+        sp = (Spinner) context.findViewById(R.id.spinner);
+
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,19 +92,19 @@ public class MainFragment extends Fragment {
             }
         });
 
-        NavigationView navView = (NavigationView) context.findViewById(R.id.navigation_view);
-        navView.getMenu().findItem(R.id.home).setChecked(true);
+        mNavView.getMenu().findItem(R.id.home).setChecked(true);
 
-        final Spinner spinner = (Spinner) context.findViewById(R.id.spinner);
-        spinner.setTag(0);
-        spinner.setVisibility(View.VISIBLE);
-        CustomSpinnerAdapter spinnerAdapter = new CustomSpinnerAdapter(context, android.R.layout.simple_spinner_dropdown_item, context.getResources().getStringArray(R.array.front_page));
-        spinner.setAdapter(spinnerAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        sp.setTag(0);
+        sp.setVisibility(View.VISIBLE);
+        CustomSpinnerAdapter spinnerAdapter = new CustomSpinnerAdapter(
+                context, android.R.layout.simple_spinner_dropdown_item,
+                context.getResources().getStringArray(R.array.front_page));
+        sp.setAdapter(spinnerAdapter);
+        sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sorting = position;
-                int tag = (int) spinner.getTag();
+                int tag = (int) sp.getTag();
 
                 if (position == tag)
                     return;
@@ -124,12 +131,21 @@ public class MainFragment extends Fragment {
             }
         });
 
-        mRecyclerView = (TwoWayView) getView().findViewById(R.id.recycler_view);
         String displayStyle = Utils.getDisplayPreference(context);
         if (displayStyle.equals("4")) {
-            Drawable divider = getResources().getDrawable(R.drawable.divider_list);
+            Drawable divider = ContextCompat.getDrawable(getActivity(), R.drawable.divider_list);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(divider));
         }
+
+        /*
+        if (context.getResources().getBoolean(R.bool.is_landscape))
+            mLayoutMngr = new GridLayoutManager(getActivity(), 2);
+        else
+            mLayoutMngr = new LinearLayoutManager(getActivity());
+            */
+
+        mLayoutMngr = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutMngr);
 
         /*
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -141,7 +157,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
-                submission = adapter.getItem(position);
+                submission = mAdapter.getItem(position);
                 new HideSubmissionTask(position).execute();
             }
         };
@@ -149,9 +165,8 @@ public class MainFragment extends Fragment {
         touchHelper.attachToRecyclerView(mRecyclerView);
         */
 
-        refreshWidget = (SwipyRefreshLayout) getView().findViewById(R.id.swipyrefreshlayout);
-        refreshWidget.setDirection(SwipyRefreshLayoutDirection.BOTH);
-        refreshWidget.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
+        mRefreshLayout.setDirection(SwipyRefreshLayoutDirection.BOTH);
+        mRefreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(SwipyRefreshLayoutDirection swipyRefreshLayoutDirection) {
                 if (swipyRefreshLayoutDirection == SwipyRefreshLayoutDirection.TOP)
@@ -159,8 +174,8 @@ public class MainFragment extends Fragment {
                 else if (paginator != null && paginator.hasNext())
                     new GetFrontPageTask().execute(false);
                 else {
-                    refreshWidget.setRefreshing(false);
-                    Toast.makeText(context.getApplicationContext(), "No more posts to load", Toast.LENGTH_SHORT).show();
+                    mRefreshLayout.setRefreshing(false);
+                    Toast.makeText(context.getApplicationContext(), getString(R.string.msg_no_more_posts), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -172,9 +187,12 @@ public class MainFragment extends Fragment {
                 Uri uri = Uri.parse(url);
                 if (url.contains("subreddits") || url.endsWith("/r") || url.endsWith("/r/")) {
                     if (app.getClient().getAuthenticationMethod().isUserless())
-                        context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SubredditsFragmentUserless()).commit();
+                        context.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new SubredditsFragmentUserless())
+                                .commit();
                     else
-                        context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SubredditsFragmentOAuth()).commit();
+                        context.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new SubredditsFragmentOAuth()).commit();
                 } else if (url.contains("/comments/")) {
                     String path = uri.getPath();
                     Log.d("debug", path);
@@ -187,7 +205,8 @@ public class MainFragment extends Fragment {
                         CommentsFragment fragment = new CommentsFragment();
                         fragment.setArguments(b);
                         Log.d("debug", words[4]);
-                        context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SubredditsFragmentUserless()).commit();
+                        context.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new SubredditsFragmentUserless()).commit();
                     }
                 } else if (url.contains("/r/")) {
                     String path = uri.getPath();
@@ -200,164 +219,36 @@ public class MainFragment extends Fragment {
                         SubredditPageFragment fragment = new SubredditPageFragment();
                         fragment.setArguments(b);
                         Log.d("debug", words[2]);
-                        context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
+                        context.getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, fragment).commit();
                     }
                 }
             }
         }
 
-        wheel = (ProgressWheel) getView().findViewById(R.id.progress_wheel);
-        empty = (TextView) getView().findViewById(R.id.tv_empty);
-
-        /*
-        final MaterialSection user = context.getSectionByTitle("User");
-        if (user != null)
-            user.setOnClickListener(new MaterialSectionListener() {
-                @Override
-                public void onClick(MaterialSection materialSection) {
-                    new MaterialDialog.Builder(context)
-                            .title("Search user")
-                            .input("User", "", false, new MaterialDialog.InputCallback() {
-                                @Override
-                                public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
-                                    SearchUserFragment fragment = new SearchUserFragment();
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("user", charSequence.toString());
-                                    fragment.setArguments(bundle);
-                                    context.setFragmentChild(fragment, "'" + user + "'");
-                                }
-                            })
-                            .positiveText("search")
-                            .negativeText("cancel")
-                            .show();
-                }
-            });
-        */
-
         paginator = app.getPaginator();
+        /*
+        if (savedInstanceState != null) {
+            list = (ArrayList<Submission>) savedInstanceState.getSerializable("list");
+            mAdapter = new SubmissionAdapter(context, list);
+            mRecyclerView.setAdapter(new AlphaInAnimationAdapter(mAdapter));
+        }
+        */
         if (app.getSubmissions() == null)
             new GetFrontPageTask().execute(true);
         else {
-            spinner.setTag(app.getFrontPageSorting());
-            spinner.setSelection(app.getFrontPageSorting(), false);
-            adapter = new SubmissionAdapter(context, app.getSubmissions());
-            //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
-            mRecyclerView.setAdapter(adapter);
+            sp.setTag(app.getFrontPageSorting());
+            sp.setSelection(app.getFrontPageSorting(), false);
+            mAdapter = new SubmissionAdapter(context, app.getSubmissions());
+            mRecyclerView.setAdapter(new AlphaInAnimationAdapter(mAdapter));
+            //mRecyclerView.setAdapter(mAdapter);
         }
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("debug", "onResume MainFragment");
-        /*
-        if (Utils.refresh) {
-            Utils.refresh = false;
-            app.setPaginator(null);
-            app.setSubmissions(null);
-            adapter = null;
-            new GetFrontPageTask().execute(true);
-        }
-        */
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d("debug", "onStop MainFragment");
-        Utils.update = false;
-        //app.setSubredditStream(null);
-        //app.setSubreddits(null);
-        //app.setUserSubredditsPaginator(null);
-        //app.setUserSubreddits(null);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        /*
-        if (requestCode == Constants.LOGIN_REQUEST) {
-            if (resultCode == context.RESULT_OK) {
-                app.setPaginator(null);
-                app.setSubmissions(null);
-                adapter = null;
-                MaterialSection subreddits = context.getSectionByTitle("Subreddits");
-                if (subreddits != null) {
-                    subreddits.setOnClickListener(new MaterialSectionListener() {
-                        @Override
-                        public void onClick(MaterialSection materialSection) {
-                            SubredditsFragmentOAuth fragment = new SubredditsFragmentOAuth();
-                            context.setFragment(fragment, "Subreddits");
-                        }
-                    });
-                }
-                context.addAccountSection(context.newSection("Logout", new MaterialSectionListener() {
-                    @Override
-                    public void onClick(MaterialSection materialSection) {
-                        Utils.logout(context);
-                    }
-                }));
-                if (context.getSectionByTitle("Inbox") == null) {
-                    MaterialSection messages = context.newSection("Inbox", R.drawable.msg, new MessagesFragment());
-                    context.addSection(messages);
-                }
-                new GetFrontPageTask().execute(true);
-            }
-            else {
-
-            }
-        }
-        */
-    }
-
-    @Override
-    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-        final SearchManager searchManager = (SearchManager) context.getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(context.getComponentName()));
-        searchView.setQueryHint("Subreddit name");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                if (s.length() == 0 || s.equals("")) {
-                    Toast.makeText(context, "Field cannot be blank", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                SearchSubredditFragment fragment = new SearchSubredditFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("query", s);
-                fragment.setArguments(bundle);
-                menu.findItem(R.id.search).collapseActionView();
-                context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
-            }
-        });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            /*
-            case R.id.random:
-                MyApp app = (MyApp) context.getApplication();
-                app.setSubredditPaginator(null);
-                app.setSubmissionsSubreddit(null);
-                SubredditPageFragment fragment = new SubredditPageFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("subreddit_url", "random");
-                fragment.setArguments(bundle);
-                context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
-                return true;
-                */
-            default:
-                return false;
-        }
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //outState.putSerializable("list", list);
     }
 
     private String getSorting() { return paginator.getSorting().name(); }
@@ -377,77 +268,75 @@ public class MainFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (adapter == null) {
+            if (mAdapter == null)
                 wheel.setVisibility(View.VISIBLE);
-            }
         }
 
         @Override
         protected Listing<Submission> doInBackground(Boolean... params) {
             paginator = app.getPaginator();
 
-            Log.d("debug", "forceNetwork: " + params[0] + "");
             if (paginator == null) {
                 paginator = new SubredditPaginator(app.getClient());
                 paginator.setSorting(Sorting.HOT);
             }
-            return paginator.next(params[0]);
+
+            try {
+                return paginator.next(params[0]);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(Listing<Submission> submissions) {
             super.onPostExecute(submissions);
-            refreshWidget.setRefreshing(false);
+            mRefreshLayout.setRefreshing(false);
             wheel.setVisibility(View.GONE);
+
             if (submissions != null) {
-                if (adapter == null) {
-                    adapter = new SubmissionAdapter(context, submissions);
-                    //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
-                    mRecyclerView.setAdapter(adapter);
+                if (mAdapter == null) {
+                    Log.d("Adapter", "Null");
+                    //list = new ArrayList<>();
+                    //for (Submission s : submissions) list.add(s);
+                    mAdapter = new SubmissionAdapter(context, submissions.getChildren());
+                    mRecyclerView.setAdapter(new AlphaInAnimationAdapter(mAdapter));
+                    //mRecyclerView.setAdapter(mAdapter);
                 }
                 else {
+                    Log.d("Adapter", "Not null");
                     if (direction == SwipyRefreshLayoutDirection.TOP) {
-                        int count = 0;
+                        Log.d("Direction", "Top");
                         for (Submission s : submissions)
-                            if (!adapter.contains(s))
-                                adapter.add(0, s);
-                                //adapter.add(count++, s);
+                            if (!mAdapter.contains(s))
+                                mAdapter.add(0, s);
                     }
                     else {
-                        for (Submission s : submissions)
-                            adapter.add(s);
+                        Log.d("Direction", "Bottom");
+                        for (Submission s : submissions) mAdapter.add(s);
                     }
                 }
+
                 app.setPaginator(paginator);
-                app.setSubmissions(adapter.getList());
-                /*
-                switch (sorting) {
-                    case 0:
-                        app.setFrontPageSorting(Sorting.HOT.ordinal());
-                        break;
-                    case 1:
-                        app.setFrontPageSorting(Sorting.CONTROVERSIAL.ordinal());
-                        break;
-                    case 2:
-                        app.setFrontPageSorting(Sorting.NEW.ordinal());
-                        break;
-                    case 3:
-                        app.setFrontPageSorting(Sorting.TOP.ordinal());
-                        break;
-                }
-                Log.d("debug", paginator.getSorting().name());
-                */
+                app.setSubmissions(mAdapter.getList());
                 app.setFrontPageSorting(sorting);
 
-                if (submissions.size() == 0)
-                    empty.setVisibility(View.VISIBLE);
-                else
-                    empty.setVisibility(View.GONE);
+                if (submissions.size() == 0) empty.setVisibility(View.VISIBLE);
+                else                         empty.setVisibility(View.GONE);
             }
+            else
+                Utils.showSnackbar(getActivity(), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new GetFrontPageTask(direction).execute(true);
+                    }
+                });
         }
     }
 
     private class SortFrontPageTask extends AsyncTask<Sorting, Void, Listing<Submission>> {
+
+        Sorting sort;
 
         @Override
         protected void onPreExecute() {
@@ -457,49 +346,45 @@ public class MainFragment extends Fragment {
 
         @Override
         protected Listing<Submission> doInBackground(Sorting... params) {
+            sort= params[0];
             paginator = new SubredditPaginator(app.getClient());
-            paginator.setSorting(params[0]);
-            return paginator.next(true);
+            paginator.setSorting(sort);
+
+            try {
+                return paginator.next(true);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(Listing<Submission> submissions) {
             super.onPostExecute(submissions);
             wheel.setVisibility(View.GONE);
+
             if (submissions != null) {
-                adapter = new SubmissionAdapter(context, submissions);
-                //mRecyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
-                mRecyclerView.setAdapter(adapter);
+                mAdapter = new SubmissionAdapter(context, submissions.getChildren());
+                mRecyclerView.setAdapter(new AlphaInAnimationAdapter(mAdapter));
+                //mRecyclerView.setAdapter(mAdapter);
 
                 app.setPaginator(paginator);
-                app.setSubmissions(adapter.getList());
-                /*
-                switch (sorting) {
-                    case 0:
-                        app.setFrontPageSorting(Sorting.HOT.ordinal());
-                        break;
-                    case 1:
-                        app.setFrontPageSorting(Sorting.CONTROVERSIAL.ordinal());
-                        break;
-                    case 2:
-                        app.setFrontPageSorting(Sorting.NEW.ordinal());
-                        break;
-                    case 3:
-                        app.setFrontPageSorting(Sorting.TOP.ordinal());
-                        break;
-                }
-                Log.d("debug", paginator.getSorting().name());
-                */
+                app.setSubmissions(mAdapter.getList());
                 app.setFrontPageSorting(sorting);
 
-                if (submissions.size() == 0)
-                    empty.setVisibility(View.VISIBLE);
-                else
-                    empty.setVisibility(View.GONE);
+                if (submissions.size() == 0) empty.setVisibility(View.VISIBLE);
+                else                         empty.setVisibility(View.GONE);
             }
+            else
+                Utils.showSnackbar(getActivity(), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new SortFrontPageTask().execute(sort);
+                    }
+                });
         }
     }
 
+    /*
     private class HideSubmissionTask extends AsyncTask<Void, Void, Boolean> {
 
         private int position;
@@ -510,7 +395,7 @@ public class MainFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             if (submission.isHidden())
                 try {
@@ -535,11 +420,12 @@ public class MainFragment extends Fragment {
             super.onPostExecute(result);
             if (result) {
                 Toast.makeText(context, "Post hidden/unhidden", Toast.LENGTH_SHORT).show();
-                adapter.remove(position);
-                adapter.notifyItemRemoved(position);
+                mAdapter.remove(position);
+                mAdapter.notifyItemRemoved(position);
             }
             else
                 Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
         }
     }
+    */
 }

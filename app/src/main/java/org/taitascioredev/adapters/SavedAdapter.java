@@ -3,7 +3,6 @@ package org.taitascioredev.adapters;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,14 +37,14 @@ import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.VoteDirection;
 
 import org.ocpsoft.prettytime.PrettyTime;
-import org.taitascioredev.viewholders.CommentViewHolder;
+import org.taitascioredev.fractal.App;
+import org.taitascioredev.viewholders.SavedCommentVH;
 import org.taitascioredev.fractal.CommentsFragment;
 import org.taitascioredev.fractal.FormattedLink;
-import org.taitascioredev.fractal.MyApp;
 import org.taitascioredev.fractal.MyClickableSpan;
 import org.taitascioredev.fractal.PostImageActivity;
 import org.taitascioredev.fractal.R;
-import org.taitascioredev.viewholders.SubmissionViewHolder;
+import org.taitascioredev.viewholders.SubmissionVH;
 import org.taitascioredev.fractal.SubredditPageFragment;
 import org.taitascioredev.fractal.Utils;
 
@@ -85,14 +84,14 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     v = LayoutInflater.from(context).inflate(R.layout.row_layout_card, parent, false);
                 else
                     v = LayoutInflater.from(context).inflate(R.layout.row_layout_list, parent, false);
-                vh = new SubmissionViewHolder(v);
+                vh = new SubmissionVH(v);
                 break;
             case TYPE_COMMENT:
                 if (pref.equals("1"))
                     v = LayoutInflater.from(context).inflate(R.layout.comment_row_layout_card, parent, false);
                 else
                     v = LayoutInflater.from(context).inflate(R.layout.comment_row_layout_list, parent, false);
-                vh = new CommentViewHolder(v);
+                vh = new SavedCommentVH(v);
                 break;
         }
         return vh;
@@ -102,10 +101,10 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case TYPE_SUBMISSION:
-                showSubmission((SubmissionViewHolder) holder, position);
+                showSubmission((SubmissionVH) holder, position);
                 break;
             case TYPE_COMMENT:
-                showComment((CommentViewHolder) holder, position);
+                showComment((SavedCommentVH) holder, position);
                 break;
         }
     }
@@ -127,7 +126,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return -1;
     }
 
-    private void showComment(final CommentViewHolder holder, final int position) {
+    private void showComment(final SavedCommentVH holder, final int position) {
         holder.popup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,7 +150,8 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         //submission = (Submission) objects.get(position);
 
         PrettyTime pretty = new PrettyTime(new Locale("en"));
-        String dateStr = pretty.format(comment.getCreatedUtc());
+        String dateStr = pretty.format(comment.getCreated());
+        //String dateStr = pretty.format(comment.getCreatedUtc());
         int i;
         if (dateStr.contains("hour")) {
             i = dateStr.indexOf("hour");
@@ -311,30 +311,30 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         holder.up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 int vote = getVote(submission);
                 if (app.getClient().getAuthenticationMethod().isUserless())
                     Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
                 else {
                     if (vote == VoteDirection.NO_VOTE.getValue() || vote == VoteDirection.DOWNVOTE.getValue())
-                        new VoteTask(submission, VoteDirection.UPVOTE, holder.up, holder.down).execute();
+                        new VoteAsync(submission, VoteDirection.UPVOTE, holder.up, holder.down).execute();
                     else
-                        new VoteTask(submission, VoteDirection.NO_VOTE, holder.up, holder.down).execute();
+                        new VoteAsync(submission, VoteDirection.NO_VOTE, holder.up, holder.down).execute();
                 }
             }
         });
         holder.down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 int vote = getVote(submission);
                 if (app.getClient().getAuthenticationMethod().isUserless())
                     Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
                 else {
                     if (vote == VoteDirection.NO_VOTE.getValue() || vote == VoteDirection.UPVOTE.getValue())
-                        new VoteTask(submission, VoteDirection.DOWNVOTE, holder.down, holder.up).execute();
+                        new VoteAsync(submission, VoteDirection.DOWNVOTE, holder.down, holder.up).execute();
                     else
-                        new VoteTask(submission, VoteDirection.NO_VOTE, holder.up, holder.down).execute();
+                        new VoteAsync(submission, VoteDirection.NO_VOTE, holder.up, holder.down).execute();
                 }
             }
         });
@@ -397,7 +397,8 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         holder.commentAuthor.setText(comment.getAuthor());
 
         // comment body
-        final Spanned spanned = Html.fromHtml(comment.getBodyHtml());
+        final Spanned spanned = Html.fromHtml(comment.getBody());
+        //final Spanned spanned = Html.fromHtml(comment.getBodyHtml());
         //body.setText(Utils.setUrlSpans(context, Html.fromHtml(spanned.toString())));
         holder.commentBody.setText(Utils.setUrlSpans(context, spanned, true));
         holder.commentBody.setOnClickListener(new View.OnClickListener() {
@@ -409,7 +410,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         holder.commentBody.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private void showSubmission(final SubmissionViewHolder holder, final int position) {
+    private void showSubmission(final SubmissionVH holder, final int position) {
         /*
         holder.popup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -440,7 +441,8 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         submission = (Submission) objects.get(position);
 
         PrettyTime pretty = new PrettyTime(new Locale("en"));
-        String dateStr = pretty.format(submission.getCreatedUtc());
+        String dateStr = pretty.format(submission.getCreated());
+        //String dateStr = pretty.format(submission.getCreatedUtc());
         int i;
         if (dateStr.contains("hour")) {
             i = dateStr.indexOf("hour");
@@ -590,9 +592,6 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 }
             });
 
-        // votes
-        holder.votes.setText(submission.getScore() + "");
-
         /*
         VoteDirection voteDir;
         if (!submission.getChangedVote())
@@ -607,7 +606,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         holder.up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 int vote = getVote(submission);
                 if (app.getClient().getAuthenticationMethod().isUserless())
                     Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
@@ -622,7 +621,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         holder.down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApp app = (MyApp) context.getApplication();
+                App app = (App) context.getApplication();
                 int vote = getVote(submission);
                 if (app.getClient().getAuthenticationMethod().isUserless())
                     Toast.makeText(context, "You need to be logged in to perform this action", Toast.LENGTH_SHORT).show();
@@ -635,23 +634,20 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
         });
 
-        // comments
-        holder.comments.setText(submission.getCommentCount() + " comments");
-
         if (vt == VoteDirection.NO_VOTE.getValue()) {
             //Log.d("debug", "NO VOTE");
-            holder.up.setImageResource(R.drawable.up_24dp);
-            holder.down.setImageResource(R.drawable.down_24dp);
+            holder.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+            holder.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
         }
         else if (vt == VoteDirection.UPVOTE.getValue()) {
             //Log.d("debug", "UP VOTE");
-            holder.up.setImageResource(R.drawable.up2);
-            holder.down.setImageResource(R.drawable.down_24dp);
+            holder.up.setImageResource(R.drawable.ic_arrow_upward_yellow_24dp);
+            holder.down.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
         }
         else {
             //Log.d("debug", "DOWN VOTE");
-            holder.up.setImageResource(R.drawable.up_24dp);
-            holder.down.setImageResource(R.drawable.down2);
+            holder.up.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+            holder.down.setImageResource(R.drawable.ic_arrow_downward_yellow_24dp);
         }
 
         // author
@@ -690,7 +686,8 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         // body
         if (submission.isSelfPost() && submission.getSelftext().length() > 0) {
-            final Spanned spanned = Html.fromHtml(submission.getSelftextHtml());
+            final Spanned spanned = Html.fromHtml(submission.getSelftext());
+            //final Spanned spanned = Html.fromHtml(submission.getSelftextHtml());
             holder.body.setText(Utils.setUrlSpans(context, spanned, true));
             holder.body.setMovementMethod(LinkMovementMethod.getInstance());
             holder.body.setVisibility(View.VISIBLE);
@@ -787,6 +784,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         ClipData data;
 
         switch (item.getItemId()) {
+            /*
             case R.id.share:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.putExtra(Intent.EXTRA_TEXT, submission.getTitle() + " " + submission.getUrl());
@@ -801,7 +799,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 context.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit();
                 return true;
             case R.id.save:
-                new SaveSubmissionTask().execute();
+                new SaveSubmissionAsync().execute();
                 return true;
             case R.id.permalink_submission:
                 String baseUrl = "https://www.reddit.com";
@@ -811,8 +809,8 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Toast.makeText(context, "Permalink copied to the clipboard", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.reply:
-
             return true;
+            */
             /*
             case R.id.permalink_comment:
                 clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -821,9 +819,11 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Toast.makeText(context, "Permalink copied to the clipboard", Toast.LENGTH_SHORT).show();
                 return true;
                 */
+            /*
             case R.id.parent:
 
                 return true;
+                */
             default:
                 return false;
         }
@@ -875,12 +875,15 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     private int getVote(Submission submission) {
+        /*
         VoteDirection voteDir;
         if (!submission.getChangedVote())
             voteDir = submission.getVote();
         else
             voteDir = submission.getVote2();
         return voteDir.getValue();
+        */
+        return -1;
     }
 
     private class VoteTask extends AsyncTask<Void, Void, Boolean> {
@@ -899,7 +902,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             try {
                 manager.vote(submission, vote);
@@ -917,16 +920,16 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 int value = vote.getValue();
                 Log.d("debug", "VOTED: " + value);
                 if (value == VoteDirection.NO_VOTE.getValue()) {
-                    image1.setImageResource(R.drawable.up_24dp);
-                    image2.setImageResource(R.drawable.down_24dp);
+                    image1.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
+                    image2.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
                 }
                 if (value == VoteDirection.UPVOTE.getValue()) {
-                    image1.setImageResource(R.drawable.up2);
-                    image2.setImageResource(R.drawable.down_24dp);
+                    image1.setImageResource(R.drawable.ic_arrow_upward_yellow_24dp);
+                    image2.setImageResource(R.drawable.ic_arrow_downward_grey_24dp);
                 }
                 else {
-                    image1.setImageResource(R.drawable.down2);
-                    image2.setImageResource(R.drawable.up_24dp);
+                    image1.setImageResource(R.drawable.ic_arrow_downward_yellow_24dp);
+                    image2.setImageResource(R.drawable.ic_arrow_upward_grey_24dp);
                 }
                 final int index = getPosition(submission);
                 Log.d("debug", "INDEX: " + index);
@@ -936,8 +939,10 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 //notifyDataSetChanged();
                 //notifyDataSetChanged();
                 //notifyItemRemoved(index);
-                submission.setChangedVote(true);
-                submission.setVote(vote);
+
+                //submission.setChangedVote(true);
+                //submission.setVote(vote);
+
                 //add(index, aux);
                 notifyDataSetChanged();
                 //notifyItemInserted(index);
@@ -953,7 +958,7 @@ public class SavedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MyApp app = (MyApp) context.getApplication();
+            App app = (App) context.getApplication();
             AccountManager manager = new AccountManager(app.getClient());
             if (submission.isSaved())
                 try {
